@@ -1,0 +1,13 @@
+{
+  "name": "typings-sanctuary",
+  "version": "0.0.1",
+  "author": "monnef",
+  "description": "type definitions for Sanctuary",
+  "scripts": {
+    "test": "tsc --module amd sanctuary-tests.ts"
+  },
+  "devDependencies": {
+    "sanctuary": "^0.11.1",
+    "typescript": "^2.0.7"
+  }
+}
