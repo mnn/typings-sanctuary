@@ -6,14 +6,21 @@
 
 export as namespace S;
 
-//# create :: { checkTypes :: Boolean, env :: Array Type } -> Module
-//# env :: Array Type
+type SanctuaryType = any;
+type SanctuaryModule = any; // TODO: should be same as namespace S
 
+//# create :: { checkTypes :: Boolean, env :: Array Type } -> Module
+export function create(properties: {checkTypes: boolean, env: SanctuaryType[]}): SanctuaryModule;
+
+//# env :: Array Type
+export function env(): SanctuaryType[];
 
 //. ### Classify
 //# type :: a -> String
-//# is :: TypeRep a -> b -> Boolean
+export function type(input: any): string;
 
+//# is :: TypeRep a -> b -> Boolean
+export function is(typeRep: any, toTest: any): boolean;
 
 //. ### Combinator
 //# I :: a -> a
@@ -34,7 +41,36 @@ export as namespace S;
 
 //. ### Composition
 //# compose :: (b -> c) -> (a -> b) -> a -> c
+export function compose<A, B, C>(f: (b: B)=>C, g: (a: A) => B): (a: A)=>C;
+
 //# pipe :: [(a -> b), (b -> c), ..., (m -> n)] -> a -> n
+export function pipe<A, Z>(functions: [(a: A)=>Z]): (a: A)=>Z;
+export function pipe<A, B, Z>(functions: [(a: A)=>B, (b: B)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, K, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>N, (n: N)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>N, (n: N)=>O, (o: O)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>N, (n: N)=>O, (o: O)=>P, (p: P)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>N, (n: N)=>O, (o: O)=>P, (p: P)=>Q, (q: Q)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>N, (n: N)=>O, (o: O)=>P, (p: P)=>Q, (q: Q)=>R, (r: R)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>N, (n: N)=>O, (o: O)=>P, (p: P)=>Q, (q: Q)=>R, (r: R)=>S, (s: S)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>N, (n: N)=>O, (o: O)=>P, (p: P)=>Q, (q: Q)=>R, (r: R)=>S, (s: S)=>T, (t: T)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>N, (n: N)=>O, (o: O)=>P, (p: P)=>Q, (q: Q)=>R, (r: R)=>S, (s: S)=>T, (t: T)=>U, (u: U)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>N, (n: N)=>O, (o: O)=>P, (p: P)=>Q, (q: Q)=>R, (r: R)=>S, (s: S)=>T, (t: T)=>U, (u: U)=>V, (v: V)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>N, (n: N)=>O, (o: O)=>P, (p: P)=>Q, (q: Q)=>R, (r: R)=>S, (s: S)=>T, (t: T)=>U, (u: U)=>V, (v: V)=>W, (w: W)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>N, (n: N)=>O, (o: O)=>P, (p: P)=>Q, (q: Q)=>R, (r: R)=>S, (s: S)=>T, (t: T)=>U, (u: U)=>V, (v: V)=>W, (w: W)=>X, (x: X)=>Z]): (a: A)=>Z;
+export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>N, (n: N)=>O, (o: O)=>P, (p: P)=>Q, (q: Q)=>R, (r: R)=>S, (s: S)=>T, (t: T)=>U, (u: U)=>V, (v: V)=>W, (w: W)=>X, (x: X)=>Y, (y: Y)=>Z]): (a: A)=>Z;
+// export function pipe<A, Z>(functions: Array<(any)=>any>): (A)=>Z;
+
 //# meld :: [** -> *] -> (* -> * -> ... -> *)
 
 
@@ -123,7 +159,7 @@ export as namespace S;
 export function not(input: boolean): boolean;
 
 //# ifElse :: (a -> Boolean) -> (a -> b) -> (a -> b) -> a -> b
-export function ifElse<A, B>(predicate: (testInput: A) => boolean, successProcessor: (input: A) => B, failureProcessor: (input: A) => B, value: A);
+export function ifElse<A, B>(predicate: (testInput: A) => boolean, successProcessor: (input: A) => B, failureProcessor: (input: A) => B, value: A): B;
 
 //# allPass :: Array (a -> Boolean) -> a -> Boolean
 export function allPass<A>(input: Array<(testInput: A) => boolean>, value: A): boolean;

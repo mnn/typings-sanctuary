@@ -1,5 +1,25 @@
 import * as S from './sanctuary/index';
 
+const fnInc = (x: number): number => x + 1;
+const fnAdd = (x: number, y: number): number => x + y;
+const fnStrLen = (x: string): number => x.length;
+
+// Classify
+() => {
+  const a: string = S.type('');
+  const b: boolean = S.is(Number, 4);
+};
+
+// composition
+() => {
+  const a: number = S.compose(fnInc, fnStrLen)('');
+  const b: number = S.pipe([fnStrLen, fnInc])('');
+  const c: number = S.pipe([fnStrLen, fnStrLen])('');
+  const fa = (s: string): number => s.length;
+  const fb = (s: number): string => s.toString();
+  const d: string = S.pipe([fa, fb, fa, fb, fa, fb, fa, fb, fa, fb])('');
+};
+
 // Logic
 () => {
   const a: boolean = S.not(true);
