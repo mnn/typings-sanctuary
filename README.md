@@ -3,9 +3,23 @@ Type definitions for [Sanctuary](https://sanctuary.js.org/)
 
 Status
 -----
-**work in progress**
 
-Completed: ~ 5%
+- [x] Classify
+- [x] Combinator
+- [ ] Function - `lift` is typed
+- [x] Composition - **TODO**: improve meld
+- [ ] Maybe type - almost done
+- [ ] Either type
+- [ ] Alternative
+- [x] Logic
+- [ ] List
+- [ ] Array
+- [ ] Object
+- [ ] Number
+- [x] Integer
+- [ ] Parse
+- [ ] RegExp
+- [x] String
 
 Usage
 ----

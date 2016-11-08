@@ -24,17 +24,36 @@ export function is(typeRep: any, toTest: any): boolean;
 
 //. ### Combinator
 //# I :: a -> a
-//# K :: a -> b -> a
-//# A :: (a -> b) -> a -> b
-//# T :: a -> (a -> b) -> b
-//# C :: (a -> b -> c) -> b -> a -> c
-//# B :: (b -> c) -> (a -> b) -> a -> c
-//# S :: (a -> b -> c) -> (a -> b) -> a -> c
+export function I<A>(a: A): A;
 
+//# K :: a -> b -> a
+export function K<A, B>(a: A, b?: B): A;
+
+//# A :: (a -> b) -> a -> b
+export function A<A, B>(fn: (a: A) => B, a: A): B;
+
+//# T :: a -> (a -> b) -> b
+export function T<A, B>(a: A, fn: (a: A) => B): B;
+
+//# C :: (a -> b -> c) -> b -> a -> c
+export function C<A, B, C>(fn: (a: A, b: B) => C, b: B, a: A): C;
+
+//# B :: (b -> c) -> (a -> b) -> a -> c
+export function B<A, B, C>(f: (b: B) => C, g: (a: A)=>B, value: A): C;
+
+//# S :: (a -> b -> c) -> (a -> b) -> a -> c
+export function S<A, B, C>(bin: (a: A, b: B)=>C, un: (a: A)=>B, value: A): C;
 
 //. ### Function
 //# flip :: ((a, b) -> c) -> b -> a -> c
+export function flip<A, B, C>(fn: (a: A, b: B) => C): (b: B, a: A) => C;
+
+interface Functor<F> {
+}
+
 //# lift :: Functor f => (a -> b) -> f a -> f b
+export function lift<A, B, C extends Functor<A>, D extends C>(fn: (a: A) => B, fa: C): D; // TODO: does it really hold for all?
+
 //# lift2 :: Apply f => (a -> b -> c) -> f a -> f b -> f c
 //# lift3 :: Apply f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
 
@@ -106,18 +125,19 @@ interface Semigroup<T> {
   concat: (other: Semigroup<T>) => Semigroup<T>;
 }
 
-// declare global {
-//   interface Array<T> extends Semigroup<T> {
-//   }
-// }
-
 interface MaybeSemigroup<T extends Semigroup<T>> extends Maybe<T> {
   concat(other: MaybeSemigroup<T>): MaybeSemigroup<T>;
   concat(other: Maybe<T>): Maybe<T>;
 }
 
-interface Maybe<A> {
-  // TODO: not sure if TypeScript allows it
+interface Applicative<T> {
+}
+
+interface Maybe<A> extends Functor<A> {
+  // breaks ap, not sure why
+  //value: A;
+
+  // TODO: not sure if TypeScript allows @@ in id
 //# Maybe#@@type :: String
 
 //# Maybe#isNothing :: Boolean
@@ -130,16 +150,37 @@ interface Maybe<A> {
   chain: <B>(fn: (a: A) => Maybe<B>) => Maybe<B>;
 
 //# Maybe#empty :: Maybe a ~> Maybe a
+  empty: () => Maybe<A>
+
 //# Maybe#equals :: Maybe a ~> b -> Boolean
+  equals: (toTest: A) => boolean
+
 //# Maybe#extend :: Maybe a ~> (Maybe a -> a) -> Maybe a
+  extend: (fn: (maybe: Maybe<A>) => A) => Maybe<A>;
+
 //# Maybe#filter :: Maybe a ~> (a -> Boolean) -> Maybe a
+  filter: (testFn: (value: A) => boolean) => Maybe<A>;
+
 //# Maybe#map :: Maybe a ~> (a -> b) -> Maybe b
+  map: <B>(processor: (value: A) => B) => Maybe<B>
+
 //# Maybe#of :: Maybe a ~> b -> Maybe b
+  of: <B>(value: B) => Maybe<B>;
+
 //# Maybe#reduce :: Maybe a ~> ((b, a) -> b) -> b -> b
+  reduce: <B>(reducer: (acc: B, item: A) => B, zero: B) => B;
+
 //# Maybe#sequence :: Applicative f => Maybe (f a) ~> (a -> f a) -> f (Maybe a)
+  sequence: (fn: (value: A) => Applicative<A>) => Applicative<Maybe<A>>; // TODO: is it right?
+
 //# Maybe#toBoolean :: Maybe a ~> Boolean
+  toBoolean: () => boolean;
+
 //# Maybe#toString :: Maybe a ~> String
+  toString: () => string;
+
 //# Maybe#inspect :: Maybe a ~> String
+  inspect: () => string;
 }
 //# Nothing :: -> Maybe a
 export function Nothing<A extends Semigroup<any>>(): MaybeSemigroup<A>; // isn't working as expected
@@ -274,7 +315,10 @@ export function anyPass<A>(input: Array<(testInput: A) => boolean>, value: A): b
 
 //. ### Integer
 //# even :: Integer -> Boolean
+export function even(num: number): boolean;
+
 //# odd :: Integer -> Boolean
+export function odd(num: number): boolean;
 
 
 //. ### Parse
