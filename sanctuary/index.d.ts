@@ -72,19 +72,63 @@ export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
 // export function pipe<A, Z>(functions: Array<(any)=>any>): (A)=>Z;
 
 //# meld :: [** -> *] -> (* -> * -> ... -> *)
+// Jesus, this one is even worse than the pipe thingy. Only few most common cases for now.
+// TODO: generate signatures
+// 1
+export function meld<A, B>(functions: [(a: A)=>B]): (a: A)=>B;
+// 1, 1
+export function meld<A, B, C>(functions: [(a: A)=>B, (b: B)=>C]): (a: A)=>C;
+// 2
+export function meld<A, B, C>(functions: [(a: A, b: B)=>C]): (a: A, b: B)=>C;
+// 2, 2
+export function meld<A, B, C, D, E>(functions: [(a: A, b: B)=>C, (c: C, d: D)=>E]): (a: A, b: B, d: D)=>E;
 
 
 //. ### Maybe type
 //# MaybeType :: Type -> Type
 //# Maybe :: TypeRep Maybe
+declare namespace Maybe {
 //# Maybe.empty :: -> Maybe a
+  export function empty<A>(): Maybe<A>;
+
 //# Maybe.of :: a -> Maybe a
-//# Maybe#@@type :: String
-//# Maybe#isNothing :: Boolean
-//# Maybe#isJust :: Boolean
+  export function of<A, B, T extends (a: A)=>B>(input: T): MaybeFunc<A, B, T>;
+  export function of<S, A extends Semigroup<S>>(input: A): MaybeSemigroup<A>;
+  export function of<A>(input: A): Maybe<A>;
+}
+
+interface MaybeFunc<M, N, T extends (m: M)=>N> extends Maybe<T> {
 //# Maybe#ap :: Maybe (a -> b) ~> Maybe a -> Maybe b
+  ap: (value: Maybe<M>) => Maybe<N>;
+}
+
+interface Semigroup<T> {
+  concat: (other: Semigroup<T>) => Semigroup<T>;
+}
+
+// declare global {
+//   interface Array<T> extends Semigroup<T> {
+//   }
+// }
+
+interface MaybeSemigroup<T extends Semigroup<T>> extends Maybe<T> {
+  concat(other: MaybeSemigroup<T>): MaybeSemigroup<T>;
+  concat(other: Maybe<T>): Maybe<T>;
+}
+
+interface Maybe<A> {
+  // TODO: not sure if TypeScript allows it
+//# Maybe#@@type :: String
+
+//# Maybe#isNothing :: Boolean
+  isNothing: boolean;
+
+//# Maybe#isJust :: Boolean
+  isJust: boolean;
+
 //# Maybe#chain :: Maybe a ~> (a -> Maybe b) -> Maybe b
-//# Maybe#concat :: Semigroup a => Maybe a ~> Maybe a -> Maybe a
+  chain: <B>(fn: (a: A) => Maybe<B>) => Maybe<B>;
+
 //# Maybe#empty :: Maybe a ~> Maybe a
 //# Maybe#equals :: Maybe a ~> b -> Boolean
 //# Maybe#extend :: Maybe a ~> (Maybe a -> a) -> Maybe a
@@ -96,8 +140,17 @@ export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
 //# Maybe#toBoolean :: Maybe a ~> Boolean
 //# Maybe#toString :: Maybe a ~> String
 //# Maybe#inspect :: Maybe a ~> String
+}
 //# Nothing :: -> Maybe a
+export function Nothing<A extends Semigroup<any>>(): MaybeSemigroup<A>; // isn't working as expected
+export function Nothing<A>(): Maybe<A>;
+export function Nothing(): Maybe<any>;
+
 //# Just :: a -> Maybe a
+export function Just<A, B, T extends (a: A)=>B>(input: T): MaybeFunc<A, B, T>;
+export function Just<S, A extends Semigroup<S>>(input: A): MaybeSemigroup<A>;
+export function Just<A>(input: A): Maybe<A>;
+
 //# isNothing :: Maybe a -> Boolean
 //# isJust :: Maybe a -> Boolean
 //# fromMaybe :: a -> Maybe a -> a
