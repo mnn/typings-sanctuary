@@ -9,6 +9,19 @@ export as namespace S;
 type SanctuaryType = any;
 type SanctuaryModule = any; // TODO: should be same as namespace S
 
+/* attempts at typing type ref
+ interface TypeRep<T> {
+ '@@type': string;
+ }
+
+ interface String extends TypeRep<String> {
+ }
+
+ interface Number extends TypeRep<Number> {
+ }
+ */
+
+
 //# create :: { checkTypes :: Boolean, env :: Array Type } -> Module
 export function create(properties: {checkTypes: boolean, env: SanctuaryType[]}): SanctuaryModule;
 
@@ -20,6 +33,7 @@ export function env(): SanctuaryType[];
 export function type(input: any): string;
 
 //# is :: TypeRep a -> b -> Boolean
+//export function is(typeRep: TypeRep<any>, toTest: any): boolean;
 export function is(typeRep: any, toTest: any): boolean;
 
 //. ### Combinator
@@ -133,7 +147,7 @@ interface MaybeSemigroup<T extends Semigroup<T>> extends Maybe<T> {
 interface Applicative<T> {
 }
 
-interface Maybe<A> extends Functor<A> {
+interface Maybe<A> extends Functor<A>, Foldable<A> {
   // breaks ap, not sure why
   //value: A;
 
@@ -292,25 +306,62 @@ export function anyPass<A>(input: Array<(testInput: A) => boolean>, value: A): b
 
 //. ### Object
 //# prop :: Accessible a => String -> a -> b
+export function prop<B>(propName: string, object: Object): B;
+
 //# get :: Accessible a => TypeRep b -> String -> a -> Maybe b
+// export function get<B>(typeRep: TypeRep<B>, propName: string, object: Object): Maybe<B>;
+export function get<B>(typeRep: any, propName: string, object: Object): Maybe<B>;
+
 //# gets :: Accessible a => TypeRep b -> Array String -> a -> Maybe b
+export function gets<B>(typeRep: any, path: string[], object: Object): Maybe<B>;
+
 //# keys :: StrMap a -> Array String
+export function keys(object: Object): string[];
+
 //# values :: StrMap a -> Array a
+export function values(object: Object): string[];
+
 //# pairs :: StrMap a -> Array (Pair String a)
+export function pairs(object: Object): [string, any][];
 
 
 //. ### Number
 //# negate :: ValidNumber -> ValidNumber
+export function negate(num: number): number;
+
 //# add :: FiniteNumber -> FiniteNumber -> FiniteNumber
+export function add(first: number, second: number): number;
+
+interface Foldable<F> {
+  reduce<A>(fn: (acc: A, item: F) => A, zero: A): A;
+}
+
 //# sum :: Foldable f => f FiniteNumber -> FiniteNumber
+export function sum(f: Foldable<number>): number;
+
 //# sub :: FiniteNumber -> FiniteNumber -> FiniteNumber
+export function sub(first: number, second: number): number;
+
 //# inc :: FiniteNumber -> FiniteNumber
+export function inc(num: number): number;
+
 //# dec :: FiniteNumber -> FiniteNumber
+export function dec(num: number): number;
+
 //# mult :: FiniteNumber -> FiniteNumber -> FiniteNumber
+export function mult(first: number, second: number): number;
+
 //# product :: Foldable f => f FiniteNumber -> FiniteNumber
+export function product(f: Foldable<number>): number;
+
 //# div :: FiniteNumber -> NonZeroFiniteNumber -> FiniteNumber
+export function div(first: number, second: number): number;
+
 //# min :: Ord a => a -> a -> a
+export function min(first: number, second: number): number;
+
 //# max :: Ord a => a -> a -> a
+export function max(first: number, second: number): number;
 
 
 //. ### Integer
@@ -323,16 +374,31 @@ export function odd(num: number): boolean;
 
 //. ### Parse
 //# parseDate :: String -> Maybe Date
+export function parseDate(input: string): Date;
+
 //# parseFloat :: String -> Maybe Number
+export function parseFloat(input: string): number;
+
 //# parseInt :: Integer -> String -> Maybe Integer
+export function parseInt(input: string): number;
+
 //# parseJson :: TypeRep a -> String -> Maybe a
+// export function parseJson<A>(typeRep: TypeRep<A>, input: string): Maybe<A>;
+export function parseJson<A>(typeRep: any, input: string): Maybe<A>;
 
 
 //. ### RegExp
 //# regex :: RegexFlags -> String -> RegExp
+export function regex(flags: string, input: string): RegExp;
+
 //# regexEscape :: String -> String
+export function regexEscape(input: string): string;
+
 //# test :: RegExp -> String -> Boolean
+export function test(regex: RegExp, input: string): boolean;
+
 //# match :: RegExp -> String -> Maybe (Array (Maybe String))
+export function match(regex: RegExp, input: string): Maybe<Array<Maybe<string>>>
 
 
 //. ### String

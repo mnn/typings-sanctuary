@@ -14,11 +14,11 @@ Status
 - [x] Logic
 - [ ] List
 - [ ] Array
-- [ ] Object
-- [ ] Number
+- [x] Object
+- [x] Number
 - [x] Integer
-- [ ] Parse
-- [ ] RegExp
+- [x] Parse
+- [x] RegExp
 - [x] String
 
 Usage

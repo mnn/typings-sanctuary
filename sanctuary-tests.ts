@@ -79,10 +79,54 @@ const fnThreeOp = (x: string, y: boolean): number => -1;
   const d: boolean = S.anyPass([x=>x > 1, x=>x % 2 == 0], 4);
 };
 
+// Object
+() => {
+  const a: number = S.prop<number>('a', {a: 1}); // can't be inferred
+  // const b: Maybe<number> = S.get<number>(<any>Number, 'a', {});
+  const b: Maybe<number> = S.get<number>(Number, 'a', {});
+  const c: Maybe<number> = S.gets(Number, ['b'], {});
+  const d: string[] = S.keys({});
+  const e: string[] = S.values({});
+  const f: Array<[string,any]> = S.pairs({});
+};
+
+// Number
+() => {
+  type n = number;
+  const a: n = S.negate(1);
+  const b: n = S.add(1, 2);
+  const c: n = S.sum([1, 2]);
+  const d: n = S.sum(S.Just(42));
+  const e: n = S.sub(1, 2);
+  const f: n = S.inc(1);
+  const g: n = S.dec(1);
+  const h: n = S.mult(1, 2);
+  const ch: n = S.product([1, 2]);
+  const i: n = S.div(1, 2);
+  const j: n = S.min(1, 2);
+  const k: n = S.max(1, 2);
+};
+
 // Integer
 () => {
   const a: boolean = S.even(1);
   const b: boolean = S.odd(1);
+};
+
+// Parse
+() => {
+  const a: Date = S.parseDate('');
+  const b: number = S.parseFloat('');
+  const c: number = S.parseInt('');
+  const d: Maybe<number> = S.parseJson(Number, ''); // not great, without a hint it's inferred as Maybe<any>
+};
+
+// RegExp
+() => {
+  const a: RegExp = S.regex('', '');
+  const b: string = S.regexEscape('');
+  const c: boolean = S.test(new RegExp(''), '');
+  const d: Maybe<Array<Maybe<string>>> = S.match(new RegExp(''), '');
 };
 
 // String
