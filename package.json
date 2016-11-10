@@ -4,7 +4,7 @@
   "author": "monnef",
   "description": "type definitions for Sanctuary",
   "scripts": {
-    "test": "tsc --module amd --noImplicitAny sanctuary-tests.ts"
+    "test": "tsc --module amd --noImplicitAny --strictNullChecks sanctuary-tests.ts"
   },
   "devDependencies": {
     "sanctuary": "^0.11.1",

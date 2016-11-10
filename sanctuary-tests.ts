@@ -71,12 +71,52 @@ const fnThreeOp = (x: string, y: boolean): number => -1;
   // TODO: applicative test
 };
 
+// Alternative
+() => {
+  type n= number | null | undefined;
+  const a: n = S.and(1, null);
+  const b: n = S.or(1, null);
+  const c: n = S.xor(1, null);
+};
+
 // Logic
 () => {
   const a: boolean = S.not(true);
   const b: string = S.ifElse(a=>a > 0, x=>'+' + x, x=>x.toString(), 4);
   const c: boolean = S.allPass([x=>x > 1, x=>x % 2 == 0], 4);
   const d: boolean = S.anyPass([x=>x > 1, x=>x % 2 == 0], 4);
+};
+
+// List
+() => {
+  type na = number[];
+  type n = number;
+  const a: na = S.concat([1], [2]);
+  const b: Maybe<na> = S.slice(0, 1, [1]);
+  const c: Maybe<n> = S.at(1, [1, 2]);
+  const d: Maybe<n> = S.head([1]);
+  const e: Maybe<n> = S.last([1]);
+  const f: Maybe<na> = S.tail([1]);
+  const g: Maybe<na> = S.init([1]);
+  const h: Maybe<na> = S.take(2, [1]);
+  const ch: Maybe<na> = S.takeLast(2, [1]);
+  const i: Maybe<na> = S.drop(2, [1]);
+  const j: Maybe<na> = S.dropLast(2, [1]);
+  const k: na = S.reverse([1]);
+  const l: Maybe<n> = S.indexOf('a', ['']);
+  const m: Maybe<n> = S.lastIndexOf('a', ['']);
+};
+
+// Array
+() => {
+  const a: number[] = S.append(2, [1]);
+  const b: number[] = S.prepend(1, [2]);
+  const c: Maybe<number> = S.find(x => x > 0, [1]);
+  const d: Maybe<number>[] = S.pluck<number>(Number, 'x', [{x: 1}, {x: 2}]);
+  const e: number = S.reduce(acc => item => acc + item, 0, [1]);
+  const f: number = S.reduce_((acc, item) => acc + item, 0, [1]);
+  const g: number[] = S.unfoldr<number, number>(n => n < 5 ? S.Just([n, n + 1]) : S.Nothing(), 1);
+  const h: number[] = S.range(0, 10);
 };
 
 // Object

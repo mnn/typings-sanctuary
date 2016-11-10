@@ -10,10 +10,10 @@ Status
 - [x] Composition - **TODO**: improve meld
 - [ ] Maybe type - almost done
 - [ ] Either type
-- [ ] Alternative
+- [x] Alternative
 - [x] Logic
-- [ ] List
-- [ ] Array
+- [x] List
+- [x] Array
 - [x] Object
 - [x] Number
 - [x] Integer

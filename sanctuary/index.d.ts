@@ -258,8 +258,13 @@ export function Just<A>(input: A): Maybe<A>;
 
 //. ### Alternative
 //# and :: Alternative a => a -> a -> a
+export function and<A>(first: A | null | undefined, second: A | null | undefined): A;
+
 //# or :: Alternative a => a -> a -> a
+export function or<A>(first: A | null | undefined, second: A | null | undefined): A;
+
 //# xor :: (Alternative a, Monoid a) => a -> a -> a
+export function xor<A>(first: A | null | undefined, second?: A | null | undefined): A;
 
 
 //. ### Logic
@@ -278,31 +283,72 @@ export function anyPass<A>(input: Array<(testInput: A) => boolean>, value: A): b
 
 //. ### List
 //# concat :: Semigroup a => a -> a -> a
+export function concat<A extends Semigroup<any>>(first: A, second: A): A;
+
 //# slice :: Integer -> Integer -> [a] -> Maybe [a]
+export function slice<A>(startIndex: number, endIndex: number, input: A[]): Maybe<A[]>;
+
 //# at :: Integer -> [a] -> Maybe a
+export function at<A>(index: number, input: A[]): Maybe<A>;
+
 //# head :: [a] -> Maybe a
+export function head<A>(input: A[]): Maybe<A>;
+
 //# last :: [a] -> Maybe a
+export function last<A>(input: A[]): Maybe<A>;
+
 //# tail :: [a] -> Maybe [a]
+export function tail<A>(input: A[]): Maybe<A[]>;
+
 //# init :: [a] -> Maybe [a]
+export function init<A>(input: A[]): Maybe<A[]>;
+
 //# take :: Integer -> [a] -> Maybe [a]
+export function take<A>(length: number, input: A[]): Maybe<A[]>;
+
 //# takeLast :: Integer -> [a] -> Maybe [a]
+export function takeLast<A>(length: number, input: A[]): Maybe<A[]>;
+
 //# drop :: Integer -> [a] -> Maybe [a]
+export function drop<A>(length: number, input: A[]): Maybe<A[]>;
+
 //# dropLast :: Integer -> [a] -> Maybe [a]
+export function dropLast<A>(length: number, input: A[]): Maybe<A[]>;
+
 //# reverse :: [a] -> [a]
+export function reverse<A>(input: A[]): A[];
+
 //# indexOf :: a -> [a] -> Maybe Integer
+export function indexOf<A>(needle: A, input: A[]): Maybe<number>;
+
 //# lastIndexOf :: a -> [a] -> Maybe Integer
+export function lastIndexOf<A>(needle: A, input: A[]): Maybe<number>;
 
 
 //. ### Array
 //# append :: a -> Array a -> Array a
-//# prepend :: a -> Array a -> Array a
-//# find :: (a -> Boolean) -> Array a -> Maybe a
-//# pluck :: Accessible a => TypeRep b -> String -> Array a -> Array (Maybe b)
-//# reduce :: Foldable f => (a -> b -> a) -> a -> f b -> a
-//# reduce_ :: Foldable f => ((a, b) -> a) -> a -> f b -> a
-//# unfoldr :: (b -> Maybe (Pair a b)) -> b -> Array a
-//# range :: Integer -> Integer -> Array Integer
+export function append<A>(item: A, array: A[]): A[];
 
+//# prepend :: a -> Array a -> Array a
+export function prepend<A>(item: A, array: A[]): A[];
+
+//# find :: (a -> Boolean) -> Array a -> Maybe a
+export function find<A>(pred: (item: A) => boolean, array: A[]): Maybe<A>;
+
+//# pluck :: Accessible a => TypeRep b -> String -> Array a -> Array (Maybe b)
+export function pluck<B>(typeRep: any, propName: string, array: any[]): Maybe<B>[];
+
+//# reduce :: Foldable f => (a -> b -> a) -> a -> f b -> a
+export function reduce<A, B>(reducer: (acc: A) => (item: B) => A, zero: A, foldable: Foldable<B>): A;
+
+//# reduce_ :: Foldable f => ((a, b) -> a) -> a -> f b -> a
+export function reduce_<A, B>(reducer: (acc: A, item: B) => A, zero: A, foldable: Foldable<B>): A;
+
+//# unfoldr :: (b -> Maybe (Pair a b)) -> b -> Array a
+export function unfoldr<A, B>(fn: (acc: B) => Maybe<[A, B]>, seed: B): A[]; // could be inference improved?
+
+//# range :: Integer -> Integer -> Array Integer
+export function range(start: number, stop: number): number[];
 
 //. ### Object
 //# prop :: Accessible a => String -> a -> b
