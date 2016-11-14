@@ -130,9 +130,9 @@ declare namespace Maybe {
   export function empty<A>(): Maybe<A>;
 
 //# Maybe.of :: a -> Maybe a
-  export function of<A, B, T extends (a: A)=>B>(input: T): MaybeFunc<A, B, T>;
-  export function of<S, A extends Semigroup<S>>(input: A): MaybeSemigroup<A>;
-  export function of<A>(input: A): Maybe<A>;
+  export function of<A, B, T extends (a: A)=>B>(input?: T|null): MaybeFunc<A, B, T>;
+  export function of<S, A extends Semigroup<S>>(input?: A|null): MaybeSemigroup<A>;
+  export function of<A>(input?: A|null): Maybe<A>;
 }
 
 interface MaybeFunc<M, N, T extends (m: M)=>N> extends Maybe<T> {
@@ -212,24 +212,55 @@ export function Just<S, A extends Semigroup<S>>(input: A): MaybeSemigroup<A>;
 export function Just<A>(input: A): Maybe<A>;
 
 //# isNothing :: Maybe a -> Boolean
+export function isNothing(input: Maybe<any>): boolean;
+
 //# isJust :: Maybe a -> Boolean
+export function isJust(input: Maybe<any>): boolean;
+
 //# fromMaybe :: a -> Maybe a -> a
+export function fromMaybe<A>(defaultValue: A, maybe: Maybe<A>): A;
+
 //# maybeToNullable :: Maybe a -> Nullable a
+export function maybeToNullable<A>(input: Maybe<A>): A|null;
+
 //# toMaybe :: a? -> Maybe a
+export function toMaybe<A>(input?: A|null): Maybe<A>;
+
 //# maybe :: b -> (a -> b) -> Maybe a -> b
+export function maybe<A, B>(defaultValue: B, mapFn: (a: A) => B, maybe: Maybe<A>): B;
+
 //# justs :: Array (Maybe a) -> Array a
+export function justs<A>(maybes: Maybe<A>[]): A[];
+
 //# mapMaybe :: (a -> Maybe b) -> Array a -> Array b
+export function mapMaybe<A, B>(mapFn: (a: A) => Maybe<B>, input: A[]): B[];
+
 //# encase :: (a -> b) -> a -> Maybe b
+export function encase<A, B>(fn: (a: A) => B, input: A): Maybe<B>;
+
 //# encase2 :: (a -> b -> c) -> a -> b -> Maybe c
+export function encase2<A, B, C>(fn: (a: A) => (b: B) => C, inputA: A, inputB: B): Maybe<C>;
+
 //# encase2_ :: ((a, b) -> c) -> a -> b -> Maybe c
+export function encase2_<A, B, C>(fn: (a: A, b: B) => C, inputA: A, inputB: B): Maybe<C>;
+
 //# encase3 :: (a -> b -> c -> d) -> a -> b -> c -> Maybe d
+export function encase3<A, B, C, D>(fn: (a: A) => (b: B) => (c: C) => D, inputA: A, inputB: B, inputC: C): Maybe<D>;
+
 //# encase3_ :: ((a, b, c) -> d) -> a -> b -> c -> Maybe d
+export function encase3_<A, B, C, D>(fn: (a: A, b: B, c: C) => D, inputA: A, inputB: B, inputC: C): Maybe<D>;
+
 //# maybeToEither :: a -> Maybe b -> Either a b
+export function maybeToEither<A, B>(leftValue: A, rightValue: Maybe<B>): Either<A,B>;
 
 
 //. ### Either type
 //# EitherType :: Type -> Type -> Type
 //# Either :: TypeRep Either
+interface Either<A, B> {
+
+}
+
 //# Either.of :: b -> Either a b
 //# Either#@@type :: String
 //# Either#isLeft :: Boolean

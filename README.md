@@ -8,7 +8,7 @@ Status
 - [x] Combinator
 - [x] Function
 - [x] Composition - **TODO**: improve meld
-- [ ] Maybe type - almost done
+- [x] Maybe type
 - [ ] Either type
 - [x] Alternative
 - [x] Logic

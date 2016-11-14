@@ -54,7 +54,7 @@ const fnThreeOp = (x: string, y: boolean): number => -1;
 () => {
   const a: Maybe<any> = Maybe.empty();
   const b: Maybe<number> = Maybe.of(1);
-  const c: Maybe<number> = Maybe.of(fnInc).ap(Maybe.of(4)); // TODO: fix, not sure how it broke
+  const c: Maybe<number> = Maybe.of(fnInc).ap(Maybe.of(4));
   const d: boolean = Maybe.of(fnInc).isJust;
   const maybeNumber = (s: string): Maybe<number> => Maybe.of(s.length);
   const e: Maybe<number> = Maybe.of('').chain(maybeNumber); // flatMap
@@ -72,7 +72,26 @@ const fnThreeOp = (x: string, y: boolean): number => -1;
   const t: Maybe<number> = Maybe.of('').map(fnStrLen);
   const u: Maybe<number> = Maybe.of('').of(0);
   const v: string = Maybe.of(4).reduce((acc, item) => acc + item, '');
-  // TODO: applicative test
+  const w: boolean = S.isNothing(Maybe.of(1));
+  const x: boolean = S.isJust(Maybe.of(1));
+  const y: number = S.fromMaybe(0, S.Just(42));
+  const z: number|null = S.maybeToNullable(S.Just(42));
+  const aa: Maybe<number> = S.toMaybe<number>(null);
+  const ab: Maybe<number> = S.toMaybe(42);
+  const ac: number = S.maybe(0, fnStrLen, S.Just(''));
+  const ad: number[] = S.justs([S.Just(1), S.Nothing<number>()]);
+  const ae = (x: number[]): Maybe<number> => S.Nothing<number>(); // generic variant isn't working even though I think it should
+  const af: number[] = S.mapMaybe(ae, [[1]]);
+  const ag = (s: string): number => 0;
+  const ah = (s: string, t: string): number => 0;
+  const ahC = (s: string) => (t: string): number => 0;
+  const ach = (s: string, t: string, u: string): number => 0;
+  const achC = (s: string) => (t: string) => (u: string): number => 0;
+  const aj: Maybe<number> = S.encase(ag, '');
+  const ak: Maybe<number> = S.encase2(ahC, '', '');
+  const al: Maybe<number> = S.encase2_(ah, '', '');
+  const am: Maybe<number> = S.encase3(achC, '', '', '');
+  const an: Maybe<number> = S.encase3_(ach, '', '', '');
 };
 
 // Alternative
