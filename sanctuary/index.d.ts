@@ -65,11 +65,16 @@ export function flip<A, B, C>(fn: (a: A, b: B) => C): (b: B, a: A) => C;
 interface Functor<F> {
 }
 
+// TODO: very loosely typed. check if it could not be typed better
+
 //# lift :: Functor f => (a -> b) -> f a -> f b
-export function lift<A, B, C extends Functor<A>, D extends C>(fn: (a: A) => B, fa: C): D; // TODO: does it really hold for all?
+export function lift<A, B, C extends Functor<A>, D extends C>(fn: (a: A) => B, fa: C): D;
 
 //# lift2 :: Apply f => (a -> b -> c) -> f a -> f b -> f c
+export function lift2<A, B, C, D extends Functor<A>, E extends Functor<B>>(fn: (a: A, b: B) => C, fa: D, fb: E): any;
+
 //# lift3 :: Apply f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
+export function lift3<A, B, C, D, E extends Functor<A>, F extends Functor<B>, G extends Functor<C>>(fn: (a: A, b: B, c: C) => D, fa: E, fb: F, fc: G): any;
 
 
 //. ### Composition

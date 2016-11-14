@@ -31,6 +31,10 @@ const fnThreeOp = (x: string, y: boolean): number => -1;
 () => {
   const a: (a: string, b: number) => boolean = S.flip((b: number, a: string) => false);
   const b: Maybe<number> = S.lift(fnInc, Maybe.of(1));
+  const add = (a: number, b: number): number => a + b;
+  const c: Maybe<number> = S.lift2(add, S.Just(1), Maybe.of(2));
+  const d = <Acc,Item>(op: (acc: Acc, item: Item) => Acc, zero: Acc, input: Item[]): Acc => zero;
+  const e: Maybe<number> = S.lift3(d, S.Just(add), S.Just(0), Maybe.of([1, 2, 3]));
 };
 
 // Composition
