@@ -4,6 +4,7 @@ Type definitions for [Sanctuary](https://sanctuary.js.org/)
 Status
 -----
 
+- [ ] Wrapper
 - [x] Classify
 - [x] Combinator
 - [x] Function
