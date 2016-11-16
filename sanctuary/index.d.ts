@@ -1,6 +1,6 @@
 // Type definitions for Sanctuary
 // Project: typings-sanctuary
-// Definitions by: monnef <http://monnef.tk>
+// Definitions by: monnef<http://monnef.tk>
 
 // template: http://www.typescriptlang.org/docs/handbook/declaration-files/templates/module-d-ts.html
 
@@ -163,7 +163,7 @@ interface Sanctuary {
   flip<A, B, C>(fn: (a: A, b: B) => C): (b: B, a: A) => C;
 
 
-// TODO: very loosely typed. check if it could not be typed better
+// TODO: very loosely typed. check if it could be typed better
 
 //# lift :: Functor f => (a -> b) -> f a -> f b
   lift<A, B, C extends Functor<A>, D extends C>(fn: (a: A) => B, fa: C): D;
@@ -326,58 +326,54 @@ interface Sanctuary {
   ifElse<A, B>(predicate: (testInput: A) => boolean, successProcessor: (input: A) => B, failureProcessor: (input: A) => B, value: A): B;
 
 //# allPass :: Array (a -> Boolean) -> a -> Boolean
-  allPass<A>(input: Array < (testInput: A) =>
-    boolean >, value: A): boolean;
+  allPass<A>(input: Array<(testInput: A) => boolean>, value: A): boolean;
 
 //# anyPass :: Array (a -> Boolean) -> a -> Boolean
-  anyPass<A>(input: Array < (testInput: A) =>
-    boolean >, value: A): boolean;
+  anyPass<A>(input: Array<(testInput: A) => boolean>, value: A): boolean;
 
 
 //. ### List
 //# concat :: Semigroup a => a -> a -> a
-  concat < A
-    extends
-    Semigroup < any >> (first: A, second: A): A;
+  concat<A extends Semigroup<any>> (first: A, second: A): A;
 
 //# slice :: Integer -> Integer -> [a] -> Maybe [a]
-  slice<A>(startIndex: number, endIndex: number, input: A[]): Maybe < A[] >;
+  slice<A>(startIndex: number, endIndex: number, input: A[]): Maybe<A[]>;
 
 //# at :: Integer -> [a] -> Maybe a
-  at<A>(index: number, input: A[]): Maybe < A >;
+  at<A>(index: number, input: A[]): Maybe<A>;
 
 //# head :: [a] -> Maybe a
-  head<A>(input: A[]): Maybe < A >;
+  head<A>(input: A[]): Maybe<A>;
 
 //# last :: [a] -> Maybe a
-  last<A>(input: A[]): Maybe < A >;
+  last<A>(input: A[]): Maybe<A>;
 
 //# tail :: [a] -> Maybe [a]
-  tail<A>(input: A[]): Maybe < A[] >;
+  tail<A>(input: A[]): Maybe<A[]>;
 
 //# init :: [a] -> Maybe [a]
-  init<A>(input: A[]): Maybe < A[] >;
+  init<A>(input: A[]): Maybe<A[]>;
 
 //# take :: Integer -> [a] -> Maybe [a]
-  take<A>(length: number, input: A[]): Maybe < A[] >;
+  take<A>(length: number, input: A[]): Maybe<A[]>;
 
 //# takeLast :: Integer -> [a] -> Maybe [a]
-  takeLast<A>(length: number, input: A[]): Maybe < A[] >;
+  takeLast<A>(length: number, input: A[]): Maybe<A[]>;
 
 //# drop :: Integer -> [a] -> Maybe [a]
-  drop<A>(length: number, input: A[]): Maybe < A[] >;
+  drop<A>(length: number, input: A[]): Maybe<A[]>;
 
 //# dropLast :: Integer -> [a] -> Maybe [a]
-  dropLast<A>(length: number, input: A[]): Maybe < A[] >;
+  dropLast<A>(length: number, input: A[]): Maybe<A[]>;
 
 //# reverse :: [a] -> [a]
   reverse<A>(input: A[]): A[];
 
 //# indexOf :: a -> [a] -> Maybe Integer
-  indexOf<A>(needle: A, input: A[]): Maybe < number >;
+  indexOf<A>(needle: A, input: A[]): Maybe<number>;
 
 //# lastIndexOf :: a -> [a] -> Maybe Integer
-  lastIndexOf<A>(needle: A, input: A[]): Maybe < number >;
+  lastIndexOf<A>(needle: A, input: A[]): Maybe<number>;
 
 
 //. ### Array
@@ -388,19 +384,19 @@ interface Sanctuary {
   prepend<A>(item: A, array: A[]): A[];
 
 //# find :: (a -> Boolean) -> Array a -> Maybe a
-  find<A>(pred: (item: A) => boolean, array: A[]): Maybe < A >;
+  find<A>(pred: (item: A) => boolean, array: A[]): Maybe<A>;
 
 //# pluck :: Accessible a => TypeRep b -> String -> Array a -> Array (Maybe b)
-  pluck<B>(typeRep: any, propName: string, array: any[]): Maybe < B > [];
+  pluck<B>(typeRep: any, propName: string, array: any[]): Maybe<B> [];
 
 //# reduce :: Foldable f => (a -> b -> a) -> a -> f b -> a
-  reduce<A, B>(reducer: (acc: A) => (item: B) => A, zero: A, foldable: Foldable < B >): A;
+  reduce<A, B>(reducer: (acc: A) => (item: B) => A, zero: A, foldable: Foldable<B>): A;
 
 //# reduce_ :: Foldable f => ((a, b) -> a) -> a -> f b -> a
-  reduce_<A, B>(reducer: (acc: A, item: B) => A, zero: A, foldable: Foldable < B >): A;
+  reduce_<A, B>(reducer: (acc: A, item: B) => A, zero: A, foldable: Foldable<B>): A;
 
 //# unfoldr :: (b -> Maybe (Pair a b)) -> b -> Array a
-  unfoldr<A, B>(fn: (acc: B) => Maybe < [A, B] >, seed: B): A[]; // could be inference improved?
+  unfoldr<A, B>(fn: (acc: B) => Maybe<[A, B]>, seed: B): A[]; // could be inference improved?
 
 //# range :: Integer -> Integer -> Array Integer
   range(start: number, stop: number): number[];
@@ -411,10 +407,10 @@ interface Sanctuary {
 
 //# get :: Accessible a => TypeRep b -> String -> a -> Maybe b
 // get<B>(typeRep: TypeRep<B>, propName: string, object: Object): Maybe<B>;
-  get<B>(typeRep: any, propName: string, object: Object): Maybe < B >;
+  get<B>(typeRep: any, propName: string, object: Object): Maybe<B>;
 
 //# gets :: Accessible a => TypeRep b -> Array String -> a -> Maybe b
-  gets<B>(typeRep: any, path: string[], object: Object): Maybe < B >;
+  gets<B>(typeRep: any, path: string[], object: Object): Maybe<B>;
 
 //# keys :: StrMap a -> Array String
   keys(object: Object): string[];
@@ -434,7 +430,7 @@ interface Sanctuary {
   add(first: number, second: number): number;
 
 //# sum :: Foldable f => f FiniteNumber -> FiniteNumber
-  sum(f: Foldable < number >): number;
+  sum(f: Foldable<number>): number;
 
 //# sub :: FiniteNumber -> FiniteNumber -> FiniteNumber
   sub(first: number, second: number): number;
@@ -449,7 +445,7 @@ interface Sanctuary {
   mult(first: number, second: number): number;
 
 //# product :: Foldable f => f FiniteNumber -> FiniteNumber
-  product(f: Foldable < number >): number;
+  product(f: Foldable<number>): number;
 
 //# div :: FiniteNumber -> NonZeroFiniteNumber -> FiniteNumber
   div(first: number, second: number): number;
@@ -481,7 +477,7 @@ interface Sanctuary {
 
 //# parseJson :: TypeRep a -> String -> Maybe a
 // parseJson<A>(typeRep: TypeRep<A>, input: string): Maybe<A>;
-  parseJson<A>(typeRep: any, input: string): Maybe < A >;
+  parseJson<A>(typeRep: any, input: string): Maybe<A>;
 
 
 //. ### RegExp
@@ -495,7 +491,7 @@ interface Sanctuary {
   test(regex: RegExp, input: string): boolean;
 
 //# match :: RegExp -> String -> Maybe (Array (Maybe String))
-  match(regex: RegExp, input: string): Maybe < Array < Maybe < string >>>
+  match(regex: RegExp, input: string): Maybe<Array<Maybe<string>>>
 
 
 //. ### String
