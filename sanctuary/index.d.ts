@@ -4,8 +4,6 @@
 
 // template: http://www.typescriptlang.org/docs/handbook/declaration-files/templates/module-d-ts.html
 
-export as namespace S;
-
 type SanctuaryType = any;
 
 /* attempts at typing type ref
@@ -113,6 +111,14 @@ interface MaybeStatic {
 interface Either<A, B> {
   // TODO
 }
+
+export namespace S {
+  export function create(properties: {checkTypes: boolean, env: SanctuaryType[]}): Sanctuary;
+
+  export let env: SanctuaryType[];
+}
+
+export = <Sanctuary>{};
 
 interface Sanctuary {
 

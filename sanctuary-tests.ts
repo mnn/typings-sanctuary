@@ -1,12 +1,15 @@
-import * as S from './sanctuary/index';
-import {Maybe} from './sanctuary/index';
-import {Semigroup} from './sanctuary/index';
-import {MaybeSemigroup} from './sanctuary/index';
+// import S = require('./sanctuary/index');
+import * as SanctuaryModule from './sanctuary/index';
+
+const S = SanctuaryModule.create({checkTypes: false, env: SanctuaryModule.env()});
+const Maybe = S.Maybe;
 
 const fnInc = (x: number): number => x + 1;
 const fnAdd = (x: number, y: number): number => x + y;
 const fnStrLen = (x: string): number => x.length;
 const fnThreeOp = (x: string, y: boolean): number => -1;
+
+S.add(1, 2);
 
 // Classify
 () => {
