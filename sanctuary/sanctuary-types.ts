@@ -111,6 +111,17 @@ export interface Either<A, B> {
   // TODO
 }
 
+export interface Alternative<A> {
+  toBoolean(): boolean;
+}
+
+declare global {
+  interface Array<T> extends Alternative<Array<T>> {
+  }
+
+  interface Boolean extends Alternative<Boolean> {
+  }
+}
 
 export interface Sanctuary {
 
@@ -142,13 +153,13 @@ export interface Sanctuary {
   T<A, B>(a: A, fn: (a: A) => B): B;
 
 //# C :: (a -> b -> c) -> b -> a -> c
-  C<A, B, C>(fn: (a: A, b: B) => C, b: B, a: A): C;
+  C<A, B, C>(fn: (a: A)=>(b: B)=>C, b: B, a: A): C;
 
 //# B :: (b -> c) -> (a -> b) -> a -> c
-  B<A, B, C>(f: (b: B) => C, g: (a: A)=>B, value: A): C;
+  B<A, B, C>(f: (b: B)=>C, g: (a: A)=>B, value: A): C;
 
 //# S :: (a -> b -> c) -> (a -> b) -> a -> c
-  S<A, B, C>(bin: (a: A, b: B)=>C, un: (a: A)=>B, value: A): C;
+  S<A, B, C>(bin: (a: A)=>(b: B)=>C, un: (a: A)=>B, value: A): C;
 
 //. ### Function
 //# flip :: ((a, b) -> c) -> b -> a -> c
@@ -161,10 +172,10 @@ export interface Sanctuary {
   lift<A, B, C extends Functor<A>, D extends C>(fn: (a: A) => B, fa: C): D;
 
 //# lift2 :: Apply f => (a -> b -> c) -> f a -> f b -> f c
-  lift2<A, B, C, D extends Functor<A>, E extends Functor<B>>(fn: (a: A, b: B) => C, fa: D, fb: E): any;
+  lift2<A, B, C, D extends Functor<A>, E extends Functor<B>>(fn: (a: A) => (b: B) => C, fa: D, fb: E): any;
 
 //# lift3 :: Apply f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
-  lift3<A, B, C, D, E extends Functor<A>, F extends Functor<B>, G extends Functor<C>>(fn: (a: A, b: B, c: C) => D, fa: E, fb: F, fc: G): any;
+  lift3<A, B, C, D, E extends Functor<A>, F extends Functor<B>, G extends Functor<C>>(fn: (a: A) => (b: B) => (c: C) => D, fa: E, fb: F, fc: G): any;
 
 
 //. ### Composition
@@ -301,13 +312,13 @@ export interface Sanctuary {
 
 //. ### Alternative
 //# and :: Alternative a => a -> a -> a
-  and<A>(first: A | null | undefined, second: A | null | undefined): A;
+  and<A extends Alternative<A>>(first: A, second: A): A;
 
 //# or :: Alternative a => a -> a -> a
-  or<A>(first: A | null | undefined, second: A | null | undefined): A;
+  or<A extends Alternative<A>>(first: A, second: A): A;
 
 //# xor :: (Alternative a, Monoid a) => a -> a -> a
-  xor<A>(first: A | null | undefined, second ?: A | null | undefined): A;
+  xor<A extends Alternative<A>>(first: A, second: A): A;
 
 
 //. ### Logic
