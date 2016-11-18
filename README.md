@@ -28,14 +28,35 @@ Consider this project to be in a beta version - there can be breaking changes!
 - [x] RegExp
 - [x] String
 
+Installation
+-----------
+
+For now just a hacky solution. (Typings tool with github address can't be used, because it doesn't support multiple files - it breaks typings for `Maybe` and other types.)
+```
+mkdir -p node_modules/@types/sanctuary
+cd node_modules/@types/sanctuary
+wget https://github.com/mnn/typings-sanctuary/raw/master/sanctuary/index.d.ts
+wget https://github.com/mnn/typings-sanctuary/raw/master/sanctuary/sanctuary-types.d.ts
+cd ../../..
+```
+
 Usage
 ----
-**TODO**
+
+After installation you should be able to compile and run following code: 
+```
+import SanctuaryMod = require('sanctuary/index');
+import { SanctuaryModule } from 'sanctuary/sanctuary-types';
+
+const S = (<SanctuaryModule>SanctuaryMod).create({checkTypes: false, env: SanctuaryMod.env});
+
+console.log(S.add(1, 2));
+```
 
 Testing
 ------
 
-To compile `sanctuary-tests.ts` run (assuming `npm install` has been done):
+To compile and execute `sanctuary-tests.ts` run (assuming `npm install` has been done):
 
 ```
 npm test
