@@ -9,20 +9,18 @@ const S = (<SanctuaryModule>SanctuaryMod).create({checkTypes: false, env: Sanctu
 // for sanctuary-types module which would fail at runtime.
 
 const fnInc = (x: number): number => x + 1;
-const fnAdd = (x: number, y: number): number => x + y;
+const fnAdd = (x: number) => (y: number): number => x + y;
 const fnStrLen = (x: string): number => x.length;
-const fnThreeOp = (x: string, y: boolean): number => -1;
-
-S.add(1, 2);
+const fnThreeOp = (x: string) => (y: boolean): number => -1;
 
 // Classify
-() => {
+(() => {
   const a: string = S.type('');
   const b: boolean = S.is(Number, 4);
-};
+})();
 
 // Combinator
-() => {
+(() => {
   type n = number;
   const a: n = S.I(1);
   const b: n = S.K(2);
@@ -32,20 +30,20 @@ S.add(1, 2);
   const f: n = S.C(fnThreeOp, true, '');
   const g: n = S.B(Math.sqrt, fnInc, 99);
   const h: n = S.S(fnAdd, Math.sqrt, 100);
-};
+})();
 
 // Function
-() => {
+(() => {
   const a: (a: string, b: number) => boolean = S.flip((b: number, a: string) => false);
   const b: Maybe<number> = S.lift(fnInc, S.Maybe.of(1));
-  const add = (a: number, b: number): number => a + b;
+  const add = (a: number) => (b: number): number => a + b;
   const c: Maybe<number> = S.lift2(add, S.Just(1), S.Maybe.of(2));
-  const d = <Acc,Item>(op: (acc: Acc, item: Item) => Acc, zero: Acc, input: Item[]): Acc => zero;
+  const d = <Acc,Item>(op: (acc: Acc, item: Item) => Acc) => <Acc>(zero: Acc) => <Item>(input: Item[]): Acc => zero;
   const e: Maybe<number> = S.lift3(d, S.Just(add), S.Just(0), S.Maybe.of([1, 2, 3]));
-};
+})();
 
 // Composition
-() => {
+(() => {
   const a: number = S.compose(fnInc, fnStrLen)('');
   const b: number = S.pipe([fnStrLen, fnInc])('');
   const c: number = S.pipe([fnStrLen, fnStrLen])('');
@@ -54,11 +52,12 @@ S.add(1, 2);
   const d: string = S.pipe([fa, fb, fa, fb, fa, fb, fa, fb, fa, fb])('');
   const e: string = S.meld([fa, fb])('');
   const fc = (n: number, s: string): string => n + s;
-  const f: string = S.meld([fnAdd, fc])(1, 2, 'x');
-};
+  const fd = (x: number, y: number): number => x + y;
+  const f: string = S.meld([fd, fc])(1, 2, 'x');
+})();
 
 // Maybe
-() => {
+(() => {
   const a: Maybe<any> = S.Maybe.empty();
   const b: Maybe<number> = S.Maybe.of(1);
   const c: Maybe<number> = S.Maybe.of(fnInc).ap(S.Maybe.of(4));
@@ -99,26 +98,25 @@ S.add(1, 2);
   const al: Maybe<number> = S.encase2_(ah, '', '');
   const am: Maybe<number> = S.encase3(achC, '', '', '');
   const an: Maybe<number> = S.encase3_(ach, '', '', '');
-};
+})();
 
 // Alternative
-() => {
-  type n= number | null | undefined;
-  const a: n = S.and(1, null);
-  const b: n = S.or(1, null);
-  const c: n = S.xor(1, null);
-};
+(() => {
+  const a: number[] = S.and([], [1]);
+  const b: Maybe<number> = S.or(S.Just(0), S.Nothing<number>());
+  const c: boolean = S.xor(false, true);
+})();
 
 // Logic
-() => {
+(() => {
   const a: boolean = S.not(true);
   const b: string = S.ifElse(a=>a > 0, x=>'+' + x, x=>x.toString(), 4);
   const c: boolean = S.allPass([x=>x > 1, x=>x % 2 == 0], 4);
   const d: boolean = S.anyPass([x=>x > 1, x=>x % 2 == 0], 4);
-};
+})();
 
 // List
-() => {
+(() => {
   type na = number[];
   type n = number;
   const a: na = S.concat([1], [2]);
@@ -135,10 +133,10 @@ S.add(1, 2);
   const k: na = S.reverse([1]);
   const l: Maybe<n> = S.indexOf('a', ['']);
   const m: Maybe<n> = S.lastIndexOf('a', ['']);
-};
+})();
 
 // Array
-() => {
+(() => {
   const a: number[] = S.append(2, [1]);
   const b: number[] = S.prepend(1, [2]);
   const c: Maybe<number> = S.find(x => x > 0, [1]);
@@ -147,10 +145,10 @@ S.add(1, 2);
   const f: number = S.reduce_((acc, item) => acc + item, 0, [1]);
   const g: number[] = S.unfoldr<number, number>(n => n < 5 ? S.Just([n, n + 1]) : S.Nothing(), 1);
   const h: number[] = S.range(0, 10);
-};
+})();
 
 // Object
-() => {
+(() => {
   const a: number = S.prop<number>('a', {a: 1}); // can't be inferred
   // const b: Maybe<number> = S.get<number>(<any>Number, 'a', {});
   const b: Maybe<number> = S.get<number>(Number, 'a', {});
@@ -158,10 +156,10 @@ S.add(1, 2);
   const d: string[] = S.keys({});
   const e: string[] = S.values({});
   const f: Array<[string,any]> = S.pairs({});
-};
+})();
 
 // Number
-() => {
+(() => {
   type n = number;
   const a: n = S.negate(1);
   const b: n = S.add(1, 2);
@@ -175,32 +173,32 @@ S.add(1, 2);
   const i: n = S.div(1, 2);
   const j: n = S.min(1, 2);
   const k: n = S.max(1, 2);
-};
+})();
 
 // Integer
-() => {
+(() => {
   const a: boolean = S.even(1);
   const b: boolean = S.odd(1);
-};
+})();
 
 // Parse
-() => {
+(() => {
   const a: Date = S.parseDate('');
   const b: number = S.parseFloat('');
   const c: number = S.parseInt('');
   const d: Maybe<number> = S.parseJson(Number, ''); // not great, without a hint it's inferred as Maybe<any>
-};
+})();
 
 // RegExp
-() => {
+(() => {
   const a: RegExp = S.regex('', '');
   const b: string = S.regexEscape('');
   const c: boolean = S.test(new RegExp(''), '');
   const d: Maybe<Array<Maybe<string>>> = S.match(new RegExp(''), '');
-};
+})();
 
 // String
-() => {
+(() => {
   const a: string = S.toUpper('a');
   const b: string = S.toLower('a');
   const c: string = S.trim('a');
@@ -208,4 +206,4 @@ S.add(1, 2);
   const e: string = S.unwords(['a']);
   const f: string[] = S.lines('a');
   const g: string = S.unlines(['a']);
-};
+})();
