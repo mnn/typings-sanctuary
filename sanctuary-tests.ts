@@ -1,8 +1,12 @@
-// import S = require('./sanctuary/index');
-import * as SanctuaryModule from './sanctuary/index';
+import SanctuaryMod = require('./sanctuary/index');
+import {Maybe, Semigroup, MaybeSemigroup, SanctuaryModule} from './sanctuary/sanctuary-types';
 
-const S = SanctuaryModule.create({checkTypes: false, env: SanctuaryModule.env()});
-const Maybe = S.Maybe;
+// Cast is not required, you can use commented out version. Cast is here only to help IDE (IDEA) with type inferring.
+// const S = SanctuaryMod.create({checkTypes: false, env: SanctuaryMod.env});
+const S = (<SanctuaryModule>SanctuaryMod).create({checkTypes: false, env: SanctuaryMod.env});
+
+// Note: One cannot use statement like `const Maybe = S.Maybe` because then TS compiler would emmit a require call
+// for sanctuary-types module which would fail at runtime.
 
 const fnInc = (x: number): number => x + 1;
 const fnAdd = (x: number, y: number): number => x + y;
@@ -33,11 +37,11 @@ S.add(1, 2);
 // Function
 () => {
   const a: (a: string, b: number) => boolean = S.flip((b: number, a: string) => false);
-  const b: Maybe<number> = S.lift(fnInc, Maybe.of(1));
+  const b: Maybe<number> = S.lift(fnInc, S.Maybe.of(1));
   const add = (a: number, b: number): number => a + b;
-  const c: Maybe<number> = S.lift2(add, S.Just(1), Maybe.of(2));
+  const c: Maybe<number> = S.lift2(add, S.Just(1), S.Maybe.of(2));
   const d = <Acc,Item>(op: (acc: Acc, item: Item) => Acc, zero: Acc, input: Item[]): Acc => zero;
-  const e: Maybe<number> = S.lift3(d, S.Just(add), S.Just(0), Maybe.of([1, 2, 3]));
+  const e: Maybe<number> = S.lift3(d, S.Just(add), S.Just(0), S.Maybe.of([1, 2, 3]));
 };
 
 // Composition
@@ -55,28 +59,28 @@ S.add(1, 2);
 
 // Maybe
 () => {
-  const a: Maybe<any> = Maybe.empty();
-  const b: Maybe<number> = Maybe.of(1);
-  const c: Maybe<number> = Maybe.of(fnInc).ap(Maybe.of(4));
-  const d: boolean = Maybe.of(fnInc).isJust;
-  const maybeNumber = (s: string): Maybe<number> => Maybe.of(s.length);
-  const e: Maybe<number> = Maybe.of('').chain(maybeNumber); // flatMap
+  const a: Maybe<any> = S.Maybe.empty();
+  const b: Maybe<number> = S.Maybe.of(1);
+  const c: Maybe<number> = S.Maybe.of(fnInc).ap(S.Maybe.of(4));
+  const d: boolean = S.Maybe.of(fnInc).isJust;
+  const maybeNumber = (s: string): Maybe<number> => S.Maybe.of(s.length);
+  const e: Maybe<number> = S.Maybe.of('').chain(maybeNumber); // flatMap
   const f: Semigroup<any[]> = [];
-  const g: MaybeSemigroup<number[]> = Maybe.of([1]);
+  const g: MaybeSemigroup<number[]> = S.Maybe.of([1]);
   const h: Maybe<number> = S.Just(0);
   const ch: Maybe<number> = S.Nothing<number>(); // meh, ugly. but without type variable it's not working
-  const i: MaybeSemigroup<number[]> = Maybe.of([1]).concat(S.Just([2]));
-  const j: MaybeSemigroup<number[]> = Maybe.of([1]).concat(S.Nothing<number[]>()); // a bit ugly
+  const i: MaybeSemigroup<number[]> = S.Maybe.of([1]).concat(S.Just([2]));
+  const j: MaybeSemigroup<number[]> = S.Maybe.of([1]).concat(S.Nothing<number[]>()); // a bit ugly
   const k: Maybe<any> = S.Nothing();
-  const l: Maybe<number> = Maybe.of(1).empty();
-  const m: boolean = Maybe.of(1).equals(2);
-  //const n: Maybe<number> = Maybe.of(1).extend((a) => a.value);
-  const o: Maybe<number> = Maybe.of(1).filter(x=>x > 1);
-  const t: Maybe<number> = Maybe.of('').map(fnStrLen);
-  const u: Maybe<number> = Maybe.of('').of(0);
-  const v: string = Maybe.of(4).reduce((acc, item) => acc + item, '');
-  const w: boolean = S.isNothing(Maybe.of(1));
-  const x: boolean = S.isJust(Maybe.of(1));
+  const l: Maybe<number> = S.Maybe.of(1).empty();
+  const m: boolean = S.Maybe.of(1).equals(2);
+  //const n: Maybe<number> = S.Maybe.of(1).extend((a) => a.value);
+  const o: Maybe<number> = S.Maybe.of(1).filter(x=>x > 1);
+  const t: Maybe<number> = S.Maybe.of('').map(fnStrLen);
+  const u: Maybe<number> = S.Maybe.of('').of(0);
+  const v: string = S.Maybe.of(4).reduce((acc, item) => acc + item, '');
+  const w: boolean = S.isNothing(S.Maybe.of(1));
+  const x: boolean = S.isJust(S.Maybe.of(1));
   const y: number = S.fromMaybe(0, S.Just(42));
   const z: number|null = S.maybeToNullable(S.Just(42));
   const aa: Maybe<number> = S.toMaybe<number>(null);
