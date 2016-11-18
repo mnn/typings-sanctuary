@@ -4,7 +4,7 @@
   "author": "monnef",
   "description": "type definitions for Sanctuary",
   "scripts": {
-    "test": "tsc --module amd --noImplicitAny --strictNullChecks sanctuary-tests.ts"
+    "test": "tsc --module commonjs --noImplicitAny --strictNullChecks sanctuary-tests.ts && sed -i'' -r \"s/\\.\\/sanctuary\\/index/sanctuary/\" sanctuary-tests.js && node sanctuary-tests.js"
   },
   "devDependencies": {
     "sanctuary": "^0.11.1",
