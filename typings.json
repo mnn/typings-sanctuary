@@ -1,0 +1,5 @@
+{
+  "name": "sanctuary",
+  "main": "sanctuary/index.d.ts",
+  "dependencies": {}
+}
