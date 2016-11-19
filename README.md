@@ -8,30 +8,12 @@ There are some nasty `any`s (sometimes masked behind empty interface or non-para
 Status
 -----
 
-Consider this project to be in a beta version - there can be breaking changes!
-
-- [x] Wrapper (S.create)
-- [x] Classify
-- [x] Combinator
-- [x] Function
-- [x] Composition
-- [x] Maybe type
-- [ ] Either type
-- [x] Alternative
-- [x] Logic
-- [x] List
-- [x] Array
-- [x] Object
-- [x] Number
-- [x] Integer
-- [x] Parse
-- [x] RegExp
-- [x] String
+Almost everything is typed. Consider this project to be a beta version, there may be breaking changes (I will try to not break anything).
 
 Installation
 -----------
 
-For now just a hacky solution. (Typings tool with github address can't be used, because it doesn't support multiple files - it breaks typings for `Maybe` and other types.)
+For now just a hacky solution. (Typings tool with GitHub address can't be used, because it doesn't support multiple files - it breaks typings for `Maybe` and other types.)
 ```
 mkdir -p node_modules/@types/sanctuary
 cd node_modules/@types/sanctuary

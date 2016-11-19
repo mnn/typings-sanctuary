@@ -1,5 +1,8 @@
 import SanctuaryMod = require('./sanctuary/index');
-import {Maybe, Semigroup, MaybeSemigroup, SanctuaryModule} from './sanctuary/sanctuary-types';
+import {
+  Maybe, Semigroup, MaybeSemigroup, SanctuaryModule, Either, EitherFunc,
+  EitherSemigroup
+} from './sanctuary/sanctuary-types';
 
 // Cast is not required, you can use commented out version. Cast is here only to help IDE (IDEA) with type inferring.
 // const S = SanctuaryMod.create({checkTypes: false, env: SanctuaryMod.env});
@@ -12,6 +15,12 @@ const fnInc = (x: number): number => x + 1;
 const fnAdd = (x: number) => (y: number): number => x + y;
 const fnStrLen = (x: string): number => x.length;
 const fnThreeOp = (x: string) => (y: boolean): number => -1;
+
+// Semigroup
+(() => {
+  const a: Semigroup<string> = '';
+  const b: Semigroup<number[]> = [1];
+})();
 
 // Classify
 (() => {
@@ -98,6 +107,60 @@ const fnThreeOp = (x: string) => (y: boolean): number => -1;
   const al: Maybe<number> = S.encase2_(ah, '', '');
   const am: Maybe<number> = S.encase3(achC, '', '', '');
   const an: Maybe<number> = S.encase3_(ach, '', '', '');
+  const ao: boolean = b.toBoolean();
+  const ap: string = b.toString();
+  const aq: string = b.inspect();
+  //const ar: Either<string, Maybe<number>> = S.Nothing<number>().sequence(S.Either.of);
+  // TODO: sequence
+})();
+
+// Either
+(() => {
+  type ENS = Either<number, string>;
+  type ENB = Either<number, boolean>;
+  type ESN = Either<string, number>;
+  type E_SGS_SGNA = EitherSemigroup<string, number[]>;
+  const eNS: ENS = S.Either.of('');
+  const a: ENS = S.Either.of('');
+  const b: boolean = eNS.isLeft;
+  const c: boolean = eNS.isRight;
+  const d: EitherFunc<number, (a: string)=>number, string, number> = S.Either.of((x: string)=>x.length);
+  const e: ENS = S.Either.of(' ');
+  const f: Either<number, number> = d.ap(e);
+  const sqrt: (a: number) => ESN = n => n < 0 ?
+    S.Left<string, number>('Cannot represent square root of negative number') :
+    S.Right<string, number>(Math.sqrt(n));
+  const g: ESN = S.Left<string, number>('err').chain(sqrt);
+  const h: ESN = S.Right(4).chain(sqrt);
+  const ch: E_SGS_SGNA = S.Left<string, number[], string, number[]>('abc');
+  const i: E_SGS_SGNA = ch.concat(S.Left<string, number[], string, number[]>('def'));
+  const j: E_SGS_SGNA = ch.concat(S.Right<string, number[], string, number[]>([4]));
+  const k: boolean = a.equals(4);
+  const l = (x: ENS): string => '';
+  const m: ENS = a.extend(l);
+  const n = (x: string): boolean => Boolean(x);
+  // a is ENS
+  const o: ENB = a.map(n);
+  const p: ENB = a.of(true);
+  const q: boolean = a.toBoolean();
+  const r: string = a.toString();
+  const s: string = a.inspect();
+  const t: boolean = S.isLeft(a);
+  const u: boolean = S.isRight(a);
+  const v: boolean = S.either((x: number) => true, (x: string) => false, a);
+  const w: number[] = S.lefts([a, a]);
+  const x: string[] = S.rights([a, a]);
+  type EEO = Either<Error, any>;
+  const y: EEO = S.encaseEither(S.I, JSON.parse, 'true');
+  const z: EEO = S.encaseEither(S.I, JSON.parse, '[');
+  type EE_BA = Either<Error, boolean[]>;
+  const aa: EE_BA = S.encaseEither2(S.I, (a: string) => (b: number) => [true], '', 1);
+  const ab: EE_BA = S.encaseEither2_(S.I, (a: string, b: number) => [true], '', 1);
+  const ac: EE_BA = S.encaseEither3(S.I, (a: string) => (b: number) => (c: boolean) => [true], '', 1, false);
+  const ad: EE_BA = S.encaseEither3_(S.I, (a: string, b: number, c: boolean) => [true], '', 1, false);
+  const ae: Maybe<string> = S.eitherToMaybe(a);
+  const af: number[] = S.Right(5).reduce((xs, x) => xs.concat([x]), [42]);
+  // TODO: sequence
 })();
 
 // Alternative

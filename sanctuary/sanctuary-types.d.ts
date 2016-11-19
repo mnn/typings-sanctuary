@@ -80,7 +80,7 @@ export interface Maybe<A> extends Functor<A>, Foldable<A> {
   reduce: <B>(reducer: (acc: B, item: A) => B, zero: B) => B;
 
 //# Maybe#sequence :: Applicative f => Maybe (f a) ~> (a -> f a) -> f (Maybe a)
-  sequence: (fn: (value: A) => Applicative<A>) => Applicative<Maybe<A>>; // TODO: is it right?
+  // TODO
 
 //# Maybe#toBoolean :: Maybe a ~> Boolean
   toBoolean: () => boolean;
@@ -105,10 +105,65 @@ export interface MaybeStatic {
 }
 
 //. ### Either type
+
+export interface EitherSemigroup<A extends Semigroup<A>, B extends Semigroup<B>> extends Either<A, B> {
+//# Either#concat :: (Semigroup a, Semigroup b) => Either a b ~> Either a b -> Either a b
+  concat(other: EitherSemigroup<A, B>): EitherSemigroup<A, B>;
+  //concat(other: Either<A, B>): Either<A, B>;
+}
+
+export interface EitherFunc<A, B extends (m: M)=>N, M, N> extends Either<A, B> {
+//# Either#ap :: Either a (b -> c) ~> Either a b -> Either a c
+  ap: <A>(value: Either<A, M>) => Either<A, N>;
+}
+
 //# EitherType :: Type -> Type -> Type
 //# Either :: TypeRep Either
 export interface Either<A, B> {
+//# Either#@@type :: String
+//# Either#isLeft :: Boolean
+  isLeft: boolean;
+
+//# Either#isRight :: Boolean
+  isRight: boolean;
+
+//# Either#chain :: Either a b ~> (b -> Either a c) -> Either a c
+  chain<C>(mapFn: (b: B) => Either<A, C>): Either<A, C>;
+
+//# Either#equals :: Either a b ~> c -> Boolean
+  equals(toTest: any): boolean;
+
+//# Either#extend :: Either a b ~> (Either a b -> b) -> Either a b
+  extend(fn: (a: Either<A, B>)=>B): Either<A, B>;
+
+//# Either#map :: Either a b ~> (b -> c) -> Either a c
+  map<C>(fn: (b: B)=>C): Either<A, C>;
+
+//# Either#of :: Either a b ~> c -> Either a c
+  // Doesn't support type classes (e.g. semigroup).
+  of<C>(newRight: C): Either<A, C>;
+
+//# Either#reduce :: Either a b ~> ((c, b) -> c) -> c -> c
+  reduce<C>(reducer: (acc: C, item: B) => C, zero: C): C;
+
+//# Either#sequence :: Applicative f => Either a (f b) ~> (b -> f b) -> f (Either a b)
   // TODO
+
+//# Either#toBoolean :: Either a b ~> Boolean
+  toBoolean(): boolean;
+
+//# Either#toString :: Either a b ~> String
+  toString(): string;
+
+//# Either#inspect :: Either a b ~> String
+  inspect(): string;
+}
+
+export interface EitherStatic {
+//# Either.of :: b -> Either a b
+  of<A, B extends (m: M)=>N, M, N>(input: B): EitherFunc<A, B, M, N>;
+  of<A extends Semigroup<any>, B extends Semigroup<any>>(input: B): EitherSemigroup<A, B>;
+  of<A, B>(input: B): Either<A, B>;
 }
 
 export interface Alternative<A> {
@@ -116,7 +171,10 @@ export interface Alternative<A> {
 }
 
 declare global {
-  interface Array<T> extends Alternative<Array<T>> {
+  interface String extends Semigroup<String> {
+  }
+
+  interface Array<T> extends Alternative<Array<T>>, Semigroup<Array<T>> {
   }
 
   interface Boolean extends Alternative<Boolean> {
@@ -212,7 +270,7 @@ export interface Sanctuary {
 
 //# meld :: [** -> *] -> (* -> * -> ... -> *)
 // Jesus, this one is even worse than the pipe thingy. Only few most common cases for now.
-// TODO: generate signatures
+// TODO: remove when removed from library
 // 1
   meld<A, B>(functions: [(a: A)=>B]): (a: A)=>B;
 // 1, 1
@@ -222,6 +280,7 @@ export interface Sanctuary {
 // 2, 2
   meld<A, B, C, D, E>(functions: [(a: A, b: B)=>C, (c: C, d: D)=>E]): (a: A, b: B, d: D)=>E;
 
+//# MaybeType :: Type -> Type
   Maybe: MaybeStatic;
 
 //# Nothing :: -> Maybe a
@@ -279,35 +338,50 @@ export interface Sanctuary {
 
 //. ### Either type
 
-//# Either.of :: b -> Either a b
-//# Either#@@type :: String
-//# Either#isLeft :: Boolean
-//# Either#isRight :: Boolean
-//# Either#ap :: Either a (b -> c) ~> Either a b -> Either a c
-//# Either#chain :: Either a b ~> (b -> Either a c) -> Either a c
-//# Either#concat :: (Semigroup a, Semigroup b) => Either a b ~> Either a b -> Either a b
-//# Either#equals :: Either a b ~> c -> Boolean
-//# Either#extend :: Either a b ~> (Either a b -> b) -> Either a b
-//# Either#map :: Either a b ~> (b -> c) -> Either a c
-//# Either#of :: Either a b ~> c -> Either a c
-//# Either#reduce :: Either a b ~> ((c, b) -> c) -> c -> c
-//# Either#sequence :: Applicative f => Either a (f b) ~> (b -> f b) -> f (Either a b)
-//# Either#toBoolean :: Either a b ~> Boolean
-//# Either#toString :: Either a b ~> String
-//# Either#inspect :: Either a b ~> String
+  Either: EitherStatic;
+
 //# Left :: a -> Either a b
+  // this seems to be useless in practice, but without S and SS tsc won't pick it up as a semigroup...
+  Left<S, SS, A extends Semigroup<S>, B extends Semigroup<SS>>(input: A): EitherSemigroup<A, B>;
+  Left<A, B>(input: A): Either<A, B>;
+
 //# Right :: b -> Either a b
+  Right<A, B extends (m: M)=>N, M, N>(input: B): EitherFunc<A, B, M, N>;
+  Right<S, SS, A extends Semigroup<S>, B extends Semigroup<SS>>(input: B): EitherSemigroup<A, B>;
+  Right<A, B>(input: B): Either<A, B>;
+
 //# isLeft :: Either a b -> Boolean
+  isLeft<A, B>(either: Either<A, B>): boolean;
+
 //# isRight :: Either a b -> Boolean
+  isRight<A, B>(either: Either<A, B>): boolean;
+
 //# either :: (a -> c) -> (b -> c) -> Either a b -> c
+  either<A, B, C>(leftFn: (a: A)=>C, rightFn: (b: B) =>C, input: Either<A, B>): C;
+
 //# lefts :: Array (Either a b) -> Array a
+  lefts<A>(input: Either<A, any>[]): A[];
+
 //# rights :: Array (Either a b) -> Array b
+  rights<B>(input: Either<any, B>[]): B[];
+
 //# encaseEither :: (Error -> l) -> (a -> r) -> a -> Either l r
+  encaseEither<L, R, A>(errorMapFn: (e: Error)=>L, dangerousFn: (a: A)=>R, input: A): Either<L, R>;
+
 //# encaseEither2 :: (Error -> l) -> (a -> b -> r) -> a -> b -> Either l r
+  encaseEither2<L, R, A, B>(errorMapFn: (e: Error) => L, dangerousFn: (a: A)=>(b: B)=>R, a: A, b: B): Either<L, R>;
+
 //# encaseEither2_ :: (Error -> l) -> ((a, b) -> r) -> a -> b -> Either l r
+  encaseEither2_<L, R, A, B>(errorMapFn: (e: Error) => L, dangerousFn: (a: A, b: B)=>R, a: A, b: B): Either<L, R>;
+
 //# encaseEither3 :: (Error -> l) -> (a -> b -> c -> r) -> a -> b -> c -> Either l r
+  encaseEither3<L, R, A, B, C>(errorMapFn: (e: Error) => L, dangerousFn: (a: A)=>(b: B)=>(c: C)=>R, a: A, b: B, c: C): Either<L, R>;
+
 //# encaseEither3_ :: (Error -> l) -> ((a, b, c) -> r) -> a -> b -> c -> Either l r
+  encaseEither3_<L, R, A, B, C>(errorMapFn: (e: Error) => L, dangerousFn: (a: A, b: B, c: C)=>R, a: A, b: B, c: C): Either<L, R>;
+
 //# eitherToMaybe :: Either a b -> Maybe b
+  eitherToMaybe<B>(either: Either<any, B>): Maybe<B>;
 
 
 //. ### Alternative
