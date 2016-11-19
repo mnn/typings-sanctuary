@@ -30,7 +30,7 @@ After installation you should be able to compile and run following code:
 import SanctuaryMod = require('sanctuary/index');
 import { SanctuaryModule } from 'sanctuary/sanctuary-types';
 
-const S = (<SanctuaryModule>SanctuaryMod).create({checkTypes: false, env: SanctuaryMod.env});
+const S = SanctuaryMod.create({checkTypes: false, env: SanctuaryMod.env});
 
 console.log(S.add(1, 2));
 ```
