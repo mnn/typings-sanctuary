@@ -14,12 +14,11 @@ Installation
 -----------
 
 For now just a hacky solution. (Typings tool with GitHub address can't be used, because it doesn't support multiple files - it breaks typings for `Maybe` and other types.)
+
+Run this in your project directory (it creates typings module directory in `node_modules` and downloads typings):
+
 ```
-mkdir -p node_modules/@types/sanctuary
-cd node_modules/@types/sanctuary
-wget https://github.com/mnn/typings-sanctuary/raw/master/sanctuary/index.d.ts
-wget https://github.com/mnn/typings-sanctuary/raw/master/sanctuary/sanctuary-types.d.ts
-cd ../../..
+wget -qO- https://github.com/mnn/typings-sanctuary/raw/master/install.sh | bash -s
 ```
 
 Usage
