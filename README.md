@@ -1,4 +1,4 @@
-Type definitions for [Sanctuary](https://sanctuary.js.org/)
+Type definitions for Sanctuary ([page](https://sanctuary.js.org/), [GitHub](https://github.com/sanctuary-js/sanctuary))
 ====================================================
 
 Just a reminder before using - do not expect 100% typings which are in my opinion impossible, because TypeScript's type (and module) system isn't just strong enough for all magic used in Sanctuary.
@@ -17,15 +17,16 @@ For now just a hacky solution. (Typings tool with GitHub address can't be used, 
 
 Run this in your project directory (it creates typings module directory in `node_modules` and downloads typings):
 
-```
+```bash
 wget -qO- https://github.com/mnn/typings-sanctuary/raw/master/install.sh | bash -s
 ```
 
 Usage
 ----
 
-After installation you should be able to compile and run following code: 
-```
+After installation you should be able to compile and run following code:
+
+```ts
 import SanctuaryMod = require('sanctuary/index');
 import { SanctuaryModule } from 'sanctuary/sanctuary-types';
 
@@ -39,6 +40,6 @@ Testing
 
 To compile and execute `sanctuary-tests.ts` run (assuming `npm install` has been done):
 
-```
+```bash
 npm test
 ```
