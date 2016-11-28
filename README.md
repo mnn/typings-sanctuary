@@ -53,7 +53,7 @@ Run `npm install` and you should be all set.
 Usage
 ----
 
-After installation you should be able to compile and run following code ([IntelliJ IDEA friendly version](blob/master/docs/idea_friendly.md)):
+After installation you should be able to compile and run following code ([IntelliJ IDEA friendly version](docs/idea_friendly.md)):
 
 ```ts
 import SanctuaryMod = require('sanctuary/index');
