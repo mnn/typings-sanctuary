@@ -203,7 +203,7 @@ const fnThreeOp = (x: string) => (y: boolean): number => -1;
   const a: number[] = S.append(2, [1]);
   const b: number[] = S.prepend(1, [2]);
   const c: Maybe<number> = S.find(x => x > 0, [1]);
-  const d: Maybe<number>[] = S.pluck<number>(Number, 'x', [{x: 1}, {x: 2}]);
+  const d: Maybe<number>[] = S.pluck(Number, 'x', [{x: 1}, {x: 2}]);
   const e: number = S.reduce(acc => item => acc + item, 0, [1]);
   const f: number = S.reduce_((acc, item) => acc + item, 0, [1]);
   const g: number[] = S.unfoldr<number, number>(n => n < 5 ? S.Just([n, n + 1]) : S.Nothing(), 1);
@@ -212,12 +212,12 @@ const fnThreeOp = (x: string) => (y: boolean): number => -1;
 
 // Object
 (() => {
-  const a: number = S.prop<number>('a', {a: 1}); // can't be inferred
+  const a: number = S.prop('a', {a: 1});
   // const b: Maybe<number> = S.get<number>(<any>Number, 'a', {});
-  const b: Maybe<number> = S.get<number>(Number, 'a', {});
+  const b: Maybe<number> = S.get(Number, 'a', {});
   const c: Maybe<number> = S.gets(Number, ['b'], {});
   const d: string[] = S.keys({});
-  const e: string[] = S.values({});
+  const e: any[] = S.values({});
   const f: Array<[string,any]> = S.pairs({});
 })();
 
@@ -246,9 +246,9 @@ const fnThreeOp = (x: string) => (y: boolean): number => -1;
 
 // Parse
 (() => {
-  const a: Date = S.parseDate('');
-  const b: number = S.parseFloat('');
-  const c: number = S.parseInt('');
+  const a: Maybe<Date> = S.parseDate('');
+  const b: Maybe<number> = S.parseFloat('');
+  const c: Maybe<number> = S.parseInt(10, '');
   const d: Maybe<number> = S.parseJson(Number, ''); // not great, without a hint it's inferred as Maybe<any>
 })();
 
