@@ -5,6 +5,36 @@ export interface SanctuaryModule {
   env: SanctuaryType[];
 }
 
+  // simple types
+  type Ord = number | string | boolean | Date;
+  type Primitive = string | number | boolean;
+  type List<T> = ArrayLike<T>;
+  type StringLike = string | StringRepresentable<string>;
+  type Prop = Primitive | StringRepresentable<Primitive>;
+  type Path = List<Prop>;
+  type Struct<T> = Obj<T> | List<T>;
+
+  type Pred<T> = (v: T) => boolean;
+  type ObjPred<T> = (value: T, key: string) => boolean;
+
+  interface Dictionary<T> {
+      [index: string]: T;
+  }
+  type Obj<T> = Dictionary<T>;
+
+  interface NumericDictionary<T> {
+      [index: number]: T;
+  }
+
+  interface StringRepresentable<T> {
+      toString(): T;
+  }
+
+  interface Type<T> extends Function {
+      new (...args: any[]): T;
+  }
+  type TypeRep<T> = Type<T>;
+
 /* attempts at typing type ref
  interface TypeRep<T> {
  '@@type': string;
@@ -16,6 +46,12 @@ export interface SanctuaryModule {
  interface Number extends TypeRep<Number> {
  }
  */
+
+type Accessible = Primitive | Struct<any>;
+type Integer = number; // - fractions
+type FiniteNumber = number; // - Infinity, -Infinity, NaN
+type NonZeroFiniteNumber = number; // - Infinity, -Infinity, 0, -0, NaN
+type ValidNumber = number; // - NaN
 
 export interface Functor<F> {
 }
@@ -194,8 +230,7 @@ export interface Sanctuary {
   type(input: any): string;
 
 //# is :: TypeRep a -> b -> Boolean
-//is(typeRep: TypeRep<any>, toTest: any): boolean;
-  is(typeRep: any, toTest: any): boolean;
+  is<A>(typeRep: Type<A>, toTest: any): toTest is A;
 
 //. ### Combinator
 //# I :: a -> a
@@ -221,8 +256,8 @@ export interface Sanctuary {
 
 //. ### Function
 //# flip :: ((a, b) -> c) -> b -> a -> c
-  flip<A, B, C>(fn: (a: A, b: B) => C): (b: B, a: A) => C;
-
+  flip<A, B, C>(fn: (a: A, b: B) => C): (b: B, a?: A) => C;
+  flip<A, B, C, Rest>(fn: (a: A, b: B, ...args: Rest[]) => C): (b: B, a?: A, ...args: Rest[]) => C;
 
 // TODO: very loosely typed. check if it could be typed better
 
@@ -238,7 +273,43 @@ export interface Sanctuary {
 
 //. ### Composition
 //# compose :: (b -> c) -> (a -> b) -> a -> c
-  compose<A, B, C>(f: (b: B)=>C, g: (a: A) => B): (a: A)=>C;
+  // compose<A, B, C>(f: (b: B)=>C, g: (a: A) => B): (a: A)=>C;
+  compose<V0, T1>(fn0: (x0: V0) => T1): (x0: V0) => T1;
+  compose<V0, V1, T1>(fn0: (x0: V0, x1: V1) => T1): (x0: V0, x1: V1) => T1;
+  compose<V0, V1, V2, T1>(fn0: (x0: V0, x1: V1, x2: V2) => T1): (x0: V0, x1: V1, x2: V2) => T1;
+  compose<V0, V1, V2, V3, T1>(fn0: (x0: V0, x1: V1, x2: V2, x3: V3) => T1): (x0: V0, x1: V1, x2: V2, x3: V3) => T1;
+  compose<V0, T1, T2>(fn1: (x: T1) => T2, fn0: (x0: V0) => T1): (x0: V0) => T2;
+  compose<V0, V1, T1, T2>(fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1) => T1): (x0: V0, x1: V1) => T2;
+  compose<V0, V1, V2, T1, T2>(fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2) => T1): (x0: V0, x1: V1, x2: V2) => T2;
+  compose<V0, V1, V2, V3, T1, T2>(fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2, x3: V3) => T1): (x0: V0, x1: V1, x2: V2, x3: V3) => T2;
+  compose<V0, T1, T2, T3>(fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0) => T1): (x0: V0) => T3;
+  compose<V0, V1, T1, T2, T3>(fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1) => T1): (x0: V0, x1: V1) => T3;
+  compose<V0, V1, V2, T1, T2, T3>(fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2) => T1): (x0: V0, x1: V1, x2: V2) => T3;
+  compose<V0, V1, V2, V3, T1, T2, T3>(fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2, x3: V3) => T1): (x0: V0, x1: V1, x2: V2, x3: V3) => T3;
+  compose<V0, T1, T2, T3, T4>(fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0) => T1): (x0: V0) => T4;
+  compose<V0, V1, T1, T2, T3, T4>(fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1) => T1): (x0: V0, x1: V1) => T4;
+  compose<V0, V1, V2, T1, T2, T3, T4>(fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2) => T1): (x0: V0, x1: V1, x2: V2) => T4;
+  compose<V0, V1, V2, V3, T1, T2, T3, T4>(fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2, x3: V3) => T1): (x0: V0, x1: V1, x2: V2, x3: V3) => T4;
+  compose<V0, T1, T2, T3, T4, T5>(fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0) => T1): (x0: V0) => T5;
+  compose<V0, V1, T1, T2, T3, T4, T5>(fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1) => T1): (x0: V0, x1: V1) => T5;
+  compose<V0, V1, V2, T1, T2, T3, T4, T5>(fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2) => T1): (x0: V0, x1: V1, x2: V2) => T5;
+  compose<V0, V1, V2, V3, T1, T2, T3, T4, T5>(fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2, x3: V3) => T1): (x0: V0, x1: V1, x2: V2, x3: V3) => T5;
+  compose<V0, T1, T2, T3, T4, T5, T6>(fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0) => T1): (x0: V0) => T6;
+  compose<V0, V1, T1, T2, T3, T4, T5, T6>(fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1) => T1): (x0: V0, x1: V1) => T6;
+  compose<V0, V1, V2, T1, T2, T3, T4, T5, T6>(fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2) => T1): (x0: V0, x1: V1, x2: V2) => T6;
+  compose<V0, V1, V2, V3, T1, T2, T3, T4, T5, T6>(fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2, x3: V3) => T1): (x0: V0, x1: V1, x2: V2, x3: V3) => T6;
+  compose<V0, T1, T2, T3, T4, T5, T6, T7>(fn6: (x: T6) => T7, fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0) => T1): (x0: V0) => T7;
+  compose<V0, V1, T1, T2, T3, T4, T5, T6, T7>(fn6: (x: T6) => T7, fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1) => T1): (x0: V0, x1: V1) => T7;
+  compose<V0, V1, V2, T1, T2, T3, T4, T5, T6, T7>(fn6: (x: T6) => T7, fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2) => T1): (x0: V0, x1: V1, x2: V2) => T7;
+  compose<V0, V1, V2, V3, T1, T2, T3, T4, T5, T6, T7>(fn6: (x: T6) => T7, fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2, x3: V3) => T1): (x0: V0, x1: V1, x2: V2, x3: V3) => T7;
+  compose<V0, T1, T2, T3, T4, T5, T6, T7, T8>(fn7: (x: T7) => T8, fn6: (x: T6) => T7, fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0) => T1): (x0: V0) => T8;
+  compose<V0, V1, T1, T2, T3, T4, T5, T6, T7, T8>(fn7: (x: T7) => T8, fn6: (x: T6) => T7, fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1) => T1): (x0: V0, x1: V1) => T8;
+  compose<V0, V1, V2, T1, T2, T3, T4, T5, T6, T7, T8>(fn7: (x: T7) => T8, fn6: (x: T6) => T7, fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2) => T1): (x0: V0, x1: V1, x2: V2) => T8;
+  compose<V0, V1, V2, V3, T1, T2, T3, T4, T5, T6, T7, T8>(fn7: (x: T7) => T8, fn6: (x: T6) => T7, fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2, x3: V3) => T1): (x0: V0, x1: V1, x2: V2, x3: V3) => T8;
+  compose<V0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(fn8: (x: T8) => T9, fn7: (x: T7) => T8, fn6: (x: T6) => T7, fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0) => T1): (x0: V0) => T9;
+  compose<V0, V1, T1, T2, T3, T4, T5, T6, T7, T8, T9>(fn8: (x: T8) => T9, fn7: (x: T7) => T8, fn6: (x: T6) => T7, fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1) => T1): (x0: V0, x1: V1) => T9;
+  compose<V0, V1, V2, T1, T2, T3, T4, T5, T6, T7, T8, T9>(fn8: (x: T8) => T9, fn7: (x: T7) => T8, fn6: (x: T6) => T7, fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2) => T1): (x0: V0, x1: V1, x2: V2) => T9;
+  compose<V0, V1, V2, V3, T1, T2, T3, T4, T5, T6, T7, T8, T9>(fn8: (x: T8) => T9, fn7: (x: T7) => T8, fn6: (x: T6) => T7, fn5: (x: T5) => T6, fn4: (x: T4) => T5, fn3: (x: T3) => T4, fn2: (x: T2) => T3, fn1: (x: T1) => T2, fn0: (x0: V0, x1: V1, x2: V2, x3: V3) => T1): (x0: V0, x1: V1, x2: V2, x3: V3) => T9;
 
 //# pipe :: [(a -> b), (b -> c), ..., (m -> n)] -> a -> n
   pipe<A, Z>(functions: [(a: A)=>Z]): (a: A)=>Z;
@@ -392,7 +463,7 @@ export interface Sanctuary {
   or<A extends Alternative<A>>(first: A, second: A): A;
 
 //# xor :: (Alternative a, Monoid a) => a -> a -> a
-  xor<A extends Alternative<A>>(first: A, second: A): A;
+  xor<A extends Alternative<A>>(first: A, second: A): A; // extends Monoid
 
 
 //. ### Logic
@@ -400,13 +471,13 @@ export interface Sanctuary {
   not(input: boolean): boolean;
 
 //# ifElse :: (a -> Boolean) -> (a -> b) -> (a -> b) -> a -> b
-  ifElse<A, B>(predicate: (testInput: A) => boolean, successProcessor: (input: A) => B, failureProcessor: (input: A) => B, value: A): B;
+  ifElse<A, B>(predicate: Pred<A>, successProcessor: (input: A) => B, failureProcessor: (input: A) => B, value: A): B;
 
 //# allPass :: Array (a -> Boolean) -> a -> Boolean
-  allPass<A>(input: Array<(testInput: A) => boolean>, value: A): boolean;
+  allPass<A>(input: Pred<A>[], value: A): boolean;
 
 //# anyPass :: Array (a -> Boolean) -> a -> Boolean
-  anyPass<A>(input: Array<(testInput: A) => boolean>, value: A): boolean;
+  anyPass<A>(input: Pred<A>[], value: A): boolean;
 
 
 //. ### List
@@ -414,10 +485,10 @@ export interface Sanctuary {
   concat<A extends Semigroup<any>> (first: A, second: A): A;
 
 //# slice :: Integer -> Integer -> [a] -> Maybe [a]
-  slice<A>(startIndex: number, endIndex: number, input: A[]): Maybe<A[]>;
+  slice<A>(startIndex: Integer, endIndex: Integer, input: A[]): Maybe<A[]>;
 
 //# at :: Integer -> [a] -> Maybe a
-  at<A>(index: number, input: A[]): Maybe<A>;
+  at<A>(index: Integer, input: A[]): Maybe<A>;
 
 //# head :: [a] -> Maybe a
   head<A>(input: A[]): Maybe<A>;
@@ -432,25 +503,25 @@ export interface Sanctuary {
   init<A>(input: A[]): Maybe<A[]>;
 
 //# take :: Integer -> [a] -> Maybe [a]
-  take<A>(length: number, input: A[]): Maybe<A[]>;
+  take<A>(length: Integer, input: A[]): Maybe<A[]>;
 
 //# takeLast :: Integer -> [a] -> Maybe [a]
-  takeLast<A>(length: number, input: A[]): Maybe<A[]>;
+  takeLast<A>(length: Integer, input: A[]): Maybe<A[]>;
 
 //# drop :: Integer -> [a] -> Maybe [a]
-  drop<A>(length: number, input: A[]): Maybe<A[]>;
+  drop<A>(length: Integer, input: A[]): Maybe<A[]>;
 
 //# dropLast :: Integer -> [a] -> Maybe [a]
-  dropLast<A>(length: number, input: A[]): Maybe<A[]>;
+  dropLast<A>(length: Integer, input: A[]): Maybe<A[]>;
 
 //# reverse :: [a] -> [a]
   reverse<A>(input: A[]): A[];
 
 //# indexOf :: a -> [a] -> Maybe Integer
-  indexOf<A>(needle: A, input: A[]): Maybe<number>;
+  indexOf<A>(needle: A, input: A[]): Maybe<Integer>;
 
 //# lastIndexOf :: a -> [a] -> Maybe Integer
-  lastIndexOf<A>(needle: A, input: A[]): Maybe<number>;
+  lastIndexOf<A>(needle: A, input: A[]): Maybe<Integer>;
 
 
 //. ### Array
@@ -461,10 +532,11 @@ export interface Sanctuary {
   prepend<A>(item: A, array: A[]): A[];
 
 //# find :: (a -> Boolean) -> Array a -> Maybe a
-  find<A>(pred: (item: A) => boolean, array: A[]): Maybe<A>;
+  find<A>(pred: Pred<A>, array: A[]): Maybe<A>;
 
 //# pluck :: Accessible a => TypeRep b -> String -> Array a -> Array (Maybe b)
-  pluck<B>(typeRep: any, propName: string, array: any[]): Maybe<B> [];
+  pluck<A extends Accessible, K extends keyof A, B extends A[K]>(typeRep: Type<B>, propName: K, array: A[]): Maybe<B> [];
+  pluck<B>(typeRep: Type<B>, propName: string, array: Accessible[]): Maybe<B> [];
 
 //# reduce :: Foldable f => (a -> b -> a) -> a -> f b -> a
   reduce<A, B>(reducer: (acc: A) => (item: B) => A, zero: A, foldable: Foldable<B>): A;
@@ -476,85 +548,86 @@ export interface Sanctuary {
   unfoldr<A, B>(fn: (acc: B) => Maybe<[A, B]>, seed: B): A[]; // could be inference improved?
 
 //# range :: Integer -> Integer -> Array Integer
-  range(start: number, stop: number): number[];
+  range(start: Integer, stop: Integer): Integer[];
 
 //. ### Object
 //# prop :: Accessible a => String -> a -> b
-  prop<B>(propName: string, object: Object): B;
+  prop<A extends Accessible, K extends keyof A>(p: K, obj: A): A[K];
 
 //# get :: Accessible a => TypeRep b -> String -> a -> Maybe b
-// get<B>(typeRep: TypeRep<B>, propName: string, object: Object): Maybe<B>;
-  get<B>(typeRep: any, propName: string, object: Object): Maybe<B>;
+  get<A extends Accessible, K extends keyof A, B extends A[K]>(typeRep: Type<B>, p: K, obj: A): Maybe<B>;
+  get<B>(typeRep: Type<B>, p: string, obj: Accessible): Maybe<B>;
 
 //# gets :: Accessible a => TypeRep b -> Array String -> a -> Maybe b
-  gets<B>(typeRep: any, path: string[], object: Object): Maybe<B>;
+  gets<A extends Accessible, B>(typeRep: Type<B>, path: string[], object: A): Maybe<B>;
 
 //# keys :: StrMap a -> Array String
   keys(object: Object): string[];
+  keys(object: Obj<any>): string[];
 
 //# values :: StrMap a -> Array a
-  values(object: Object): string[];
+  values<T>(obj: Obj<T>): T[];
+  values(object: Object): any[];
 
 //# pairs :: StrMap a -> Array (Pair String a)
-  pairs(object: Object): [string, any][];
+  pairs<T>(obj: Obj<T>): [string,T][];
 
 
 //. ### Number
 //# negate :: ValidNumber -> ValidNumber
-  negate(num: number): number;
+  negate(num: ValidNumber): ValidNumber;
 
 //# add :: FiniteNumber -> FiniteNumber -> FiniteNumber
-  add(first: number, second: number): number;
+  add(first: FiniteNumber, second: FiniteNumber): FiniteNumber;
 
 //# sum :: Foldable f => f FiniteNumber -> FiniteNumber
-  sum(f: Foldable<number>): number;
+  sum(f: Foldable<FiniteNumber>): FiniteNumber;
 
 //# sub :: FiniteNumber -> FiniteNumber -> FiniteNumber
-  sub(first: number, second: number): number;
+  sub(first: FiniteNumber, second: FiniteNumber): FiniteNumber;
 
 //# inc :: FiniteNumber -> FiniteNumber
-  inc(num: number): number;
+  inc(num: FiniteNumber): FiniteNumber;
 
 //# dec :: FiniteNumber -> FiniteNumber
-  dec(num: number): number;
+  dec(num: FiniteNumber): FiniteNumber;
 
 //# mult :: FiniteNumber -> FiniteNumber -> FiniteNumber
-  mult(first: number, second: number): number;
+  mult(first: FiniteNumber, second: FiniteNumber): FiniteNumber;
 
 //# product :: Foldable f => f FiniteNumber -> FiniteNumber
-  product(f: Foldable<number>): number;
+  product(f: Foldable<FiniteNumber>): FiniteNumber;
 
 //# div :: FiniteNumber -> NonZeroFiniteNumber -> FiniteNumber
-  div(first: number, second: number): number;
+  div(first: FiniteNumber, second: NonZeroFiniteNumber): FiniteNumber;
 
 //# min :: Ord a => a -> a -> a
-  min(first: number, second: number): number;
+  min<T extends Ord>(first: T, second: T): T;
 
 //# max :: Ord a => a -> a -> a
-  max(first: number, second: number): number;
+  max<T extends Ord>(first: T, second: T): T;
 
 
 //. ### Integer
 //# even :: Integer -> Boolean
-  even(num: number): boolean;
+  even(num: Integer): boolean;
 
 //# odd :: Integer -> Boolean
-  odd(num: number): boolean;
+  odd(num: Integer): boolean;
 
 
 //. ### Parse
 //# parseDate :: String -> Maybe Date
-  parseDate(input: string): Date;
+  parseDate(input: string): Maybe<Date>;
 
 //# parseFloat :: String -> Maybe Number
-  parseFloat(input: string): number;
+  parseFloat(input: string): Maybe<number>;
 
 //# parseInt :: Integer -> String -> Maybe Integer
-  parseInt(input: string): number;
+  parseInt(radix: Integer, input: string): Maybe<Integer>;
 
 //# parseJson :: TypeRep a -> String -> Maybe a
-// parseJson<A>(typeRep: TypeRep<A>, input: string): Maybe<A>;
-  parseJson<A>(typeRep: any, input: string): Maybe<A>;
+  parseJson<A>(typeRep: Type<A>, input: string): Maybe<A>;
 
 
 //. ### RegExp
