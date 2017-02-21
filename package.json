@@ -8,6 +8,6 @@
   },
   "devDependencies": {
     "sanctuary": "^0.11.1",
-    "typescript": "^2.0.7"
+    "typescript": "^2.1.6"
   }
 }
