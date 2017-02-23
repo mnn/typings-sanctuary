@@ -84,6 +84,15 @@ export interface Foldable<F> {
   reduce<A>(fn: (acc: A, item: F) => A, zero: A): A;
 }
 
+export interface NonGlobalRegExp extends RegExp {}
+
+export interface GlobalRegExp extends RegExp {}
+
+export interface RegexMatchResult {
+  match: string;
+  groups: Maybe<string>[];
+}
+
 //. ### Maybe type
 export interface Maybe<A> extends Functor<A>, Foldable<A> {
   // breaks ap, not sure why
@@ -98,32 +107,11 @@ export interface Maybe<A> extends Functor<A>, Foldable<A> {
 //# Maybe#isJust :: Boolean
   isJust: boolean;
 
-//# Maybe#empty :: Maybe a ~> Maybe a
-  empty: () => Maybe<A>
-
-//# Maybe#equals :: Maybe a ~> b -> Boolean
-  equals: (toTest: A) => boolean
-
 //# Maybe#extend :: Maybe a ~> (Maybe a -> a) -> Maybe a
   extend: (fn: (maybe: Maybe<A>) => A) => Maybe<A>;
 
-//# Maybe#filter :: Maybe a ~> (a -> Boolean) -> Maybe a
-  filter: (testFn: (value: A) => boolean) => Maybe<A>;
-
-//# Maybe#map :: Maybe a ~> (a -> b) -> Maybe b
-  map: <B>(processor: (value: A) => B) => Maybe<B>
-
-//# Maybe#of :: Maybe a ~> b -> Maybe b
-  of: <B>(value: B) => Maybe<B>;
-
-//# Maybe#reduce :: Maybe a ~> ((b, a) -> b) -> b -> b
-  reduce: <B>(reducer: (acc: B, item: A) => B, zero: B) => B;
-
 //# Maybe#sequence :: Applicative f => Maybe (f a) ~> (a -> f a) -> f (Maybe a)
   // TODO
-
-//# Maybe#toBoolean :: Maybe a ~> Boolean
-  toBoolean: () => boolean;
 
 //# Maybe#toString :: Maybe a ~> String
   toString: () => string;
@@ -147,7 +135,7 @@ export interface EitherSemigroup<A extends Semigroup<A>, B extends Semigroup<B>>
 
 export interface EitherFunc<A, B extends (m: M)=>N, M, N> extends Either<A, B> {
 //# Either#ap :: Either a (b -> c) ~> Either a b -> Either a c
-  ap: <A>(value: Either<A, M>) => Either<A, N>;
+//  ap: <A>(value: Either<A, M>) => Either<A, N>; // TODO: move to main object
 }
 
 //# EitherType :: Type -> Type -> Type
@@ -159,31 +147,6 @@ export interface Either<A, B> {
 
 //# Either#isRight :: Boolean
   isRight: boolean;
-
-//# Either#chain :: Either a b ~> (b -> Either a c) -> Either a c
-  chain<C>(mapFn: (b: B) => Either<A, C>): Either<A, C>;
-
-//# Either#equals :: Either a b ~> c -> Boolean
-  equals(toTest: any): boolean;
-
-//# Either#extend :: Either a b ~> (Either a b -> b) -> Either a b
-  extend(fn: (a: Either<A, B>)=>B): Either<A, B>;
-
-//# Either#map :: Either a b ~> (b -> c) -> Either a c
-  map<C>(fn: (b: B)=>C): Either<A, C>;
-
-//# Either#of :: Either a b ~> c -> Either a c
-  // Doesn't support type classes (e.g. semigroup).
-  of<C>(newRight: C): Either<A, C>;
-
-//# Either#reduce :: Either a b ~> ((c, b) -> c) -> c -> c
-  reduce<C>(reducer: (acc: C, item: B) => C, zero: C): C;
-
-//# Either#sequence :: Applicative f => Either a (f b) ~> (b -> f b) -> f (Either a b)
-  // TODO
-
-//# Either#toBoolean :: Either a b ~> Boolean
-  toBoolean(): boolean;
 
 //# Either#toString :: Either a b ~> String
   toString(): string;
@@ -199,9 +162,9 @@ export interface EitherStatic {
   of<A, B>(input: B): Either<A, B>;
 }
 
-export interface Alternative<A> {
-  toBoolean(): boolean;
-}
+export interface Alt<A> extends Alternative<A> {}
+
+export interface Alternative<A> {}
 
 declare global {
   interface String extends Semigroup<String> {
@@ -229,6 +192,11 @@ export interface Sanctuary {
 //# is :: TypeRep a -> b -> Boolean
   is<A>(typeRep: Type<A>, toTest: any): toTest is A;
   is<A>(typeRep: Type<A>): (toTest: any) => toTest is A;
+
+//. ### Fantasy Land
+//# or :: Alternative a => a -> a -> a
+  alt<A extends Alt<A>>(first: A, second: A): A;
+
 
 //. ### Combinator
 //# I :: a -> a
@@ -445,15 +413,15 @@ export interface Sanctuary {
   eitherToMaybe<B>(either: Either<any, B>): Maybe<B>;
 
 
-//. ### Alternative
-//# and :: Alternative a => a -> a -> a
-  and<A extends Alternative<A>>(first: A, second: A): A;
-
-//# or :: Alternative a => a -> a -> a
-  or<A extends Alternative<A>>(first: A, second: A): A;
-
-
 //. ### Logic
+//# and :: Boolean -> Boolean -> Boolean
+  and(a: boolean, b: boolean): boolean;
+  and(a: boolean): (b: boolean) => boolean;
+
+//# or :: Boolean -> Boolean -> Boolean
+  or(a: boolean, b: boolean): boolean;
+  or(a: boolean): (b: boolean) => boolean;
+
 //# not :: Boolean -> Boolean
   not(input: boolean): boolean;
 
@@ -521,9 +489,10 @@ export interface Sanctuary {
 //# find :: (a -> Boolean) -> Array a -> Maybe a
   find<A>(pred: Pred<A>, array: A[]): Maybe<A>;
 
-//# pluck :: Accessible a => TypeRep b -> String -> Array a -> Array (Maybe b)
-  pluck<A extends Accessible, K extends keyof A, B extends A[K]>(typeRep: Type<B>, propName: K, array: A[]): Maybe<B> [];
-  pluck<B>(typeRep: Type<B>, propName: string, array: Accessible[]): Maybe<B> [];
+//# pluck :: Accessible a => String -> Array a -> Array b
+  pluck<A extends Accessible, K extends keyof A, B extends A[K]>(propName: K, array: A[]): B[];
+  pluck<B>(propName: string, array: Accessible[]): B[];
+  // pluck(propName: string, array: any[]): any[];
 
 //# reduce :: Foldable f => (a -> b -> a) -> a -> f b -> a
   reduce<A, B>(reducer: (acc: A) => (item: B) => A, zero: A, foldable: Foldable<B>): A;
@@ -627,9 +596,13 @@ export interface Sanctuary {
 //# test :: RegExp -> String -> Boolean
   test(regex: RegExp, input: string): boolean;
 
-//# match :: RegExp -> String -> Maybe (Array (Maybe String))
-  match(regex: RegExp, input: string): Maybe<Array<Maybe<string>>>
+//# match :: NonGlobalRegExp -> String -> Maybe { match :: String, groups :: Array (Maybe String) }
+  match(regex: NonGlobalRegExp, input: string): Maybe<RegexMatchResult>;
+  match(regex: NonGlobalRegExp): (input: string) => Maybe<RegexMatchResult>;
 
+// # matchAll :: GlobalRegExp -> String -> Array { match :: String, groups :: Array (Maybe String) }
+  matchAll(regex: GlobalRegExp, input: string): RegexMatchResult[];
+  matchAll(regex: GlobalRegExp): (input: string) => RegexMatchResult[];
 
 //. ### String
 //# toUpper :: String -> String
