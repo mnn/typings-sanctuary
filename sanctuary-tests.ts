@@ -1,7 +1,7 @@
 import SanctuaryMod = require('./sanctuary/index');
 import {
   Maybe, Semigroup, MaybeSemigroup, SanctuaryModule, Either, EitherFunc,
-  EitherSemigroup, Apply, MaybeFunc, RegexMatchResult
+  EitherSemigroup, Apply, MaybeFunc, RegexMatchResult, Type, IsFnType
 } from './sanctuary/sanctuary-types';
 
 // Cast is not required, you can use commented out version. Cast is here only to help IDE (IDEA) with type inferring.
@@ -72,7 +72,7 @@ const fnThreeOp = (x: string) => (y: boolean): num => -1;
   const c0: Apply<(x: num)=>num> = S.toMaybe(fnInc);
   const c1: MaybeFunc<num, num, (x: num)=>num> = S.toMaybe(fnInc);
   const c2: Apply<number> = S.toMaybe(4);
-  const c50: Maybe<number> = S.ap(S.toMaybe(fnInc), S.toMaybe(4));
+  const c50: Maybe<number> = S.ap<MaybeFunc<num, num, (x: num)=>num>, num, num, (x: num)=>num>(S.toMaybe(fnInc), S.toMaybe(4));
   // const c51: num[] = S.ap([fnInc, Math.sqrt], [4, 9, 16]); // TODO
   const d: boolean = S.toMaybe(fnInc).isJust;
   const maybeNumber = (s: string): Maybe<number> => S.toMaybe(s.length);
@@ -153,7 +153,8 @@ const fnThreeOp = (x: string) => (y: boolean): num => -1;
 // Alternative
 (() => {
   const a: number[] = S.alt([], [1]);
-  const b: Maybe<number> = S.alt(S.Just(0), S.Nothing);
+  const b: Maybe<number> = S.alt<Maybe<number>>(S.Just(0), S.Nothing);
+  const c: Maybe<number> = S.alt(S.Just(0), S.Nothing as Maybe<number>);
 })();
 
 // Logic
@@ -203,8 +204,8 @@ const fnThreeOp = (x: string) => (y: boolean): num => -1;
 // Object
 (() => {
   const a: number = S.prop('a', {a: 1});
-  const b: Maybe<number> = S.get(S.is(Number), 'a', {});
-  const c: Maybe<number> = S.gets(S.is(Number), ['b'], {});
+  const b: Maybe<number> = S.get<any, number>(S.is(Number), 'a', {});
+  const c: Maybe<number> = S.gets<any, number>(S.is(Number), ['b'], {});
   const d: string[] = S.keys({});
   const e: any[] = S.values({});
   const f: Array<[string,any]> = S.pairs({});
@@ -238,8 +239,7 @@ const fnThreeOp = (x: string) => (y: boolean): num => -1;
   const a: Maybe<Date> = S.parseDate('');
   const b: Maybe<number> = S.parseFloat('');
   const c: Maybe<number> = S.parseInt(10, '');
-  const d: Maybe<number> = S.parseJson(S.is(Number), '');
-  const e: Maybe<number> = S.parseJson<number>(S.is(Number), '');
+  const d: Maybe<number> = S.parseJson<number>(S.is(Number), '');
 })();
 
 // RegExp

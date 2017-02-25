@@ -16,6 +16,7 @@ type Struct<T> = Obj<T> | List<T>;
 
 type Pred<T> = (v: T) => boolean;
 type ObjPred<T> = (value: T, key: string) => boolean;
+export type IsFnType<A> = (x: Type<A>) => boolean;
 
 interface Dictionary<T> {
   [index: string]: T;
@@ -30,7 +31,7 @@ interface StringRepresentable<T> {
   toString(): T;
 }
 
-interface Type<T> extends Function {
+export interface Type<T> extends Function {
   new (...args: any[]): T;
 }
 type TypeRep<T> = Type<T>;
@@ -77,23 +78,13 @@ export interface RegexMatchResult {
 
 //. ### Maybe type
 export interface Maybe<A> extends Functor<A>, Foldable<A> {
-  // breaks ap, not sure why
-  //value: A;
-
-  // TODO: not sure if TypeScript allows @@ in id
-//# Maybe#@@type :: String
+  value: A;
 
 //# Maybe#isNothing :: Boolean
   isNothing: boolean;
 
 //# Maybe#isJust :: Boolean
   isJust: boolean;
-
-//# Maybe#extend :: Maybe a ~> (Maybe a -> a) -> Maybe a
-  extend: (fn: (maybe: Maybe<A>) => A) => Maybe<A>;
-
-//# Maybe#sequence :: Applicative f => Maybe (f a) ~> (a -> f a) -> f (Maybe a)
-  // TODO
 
 //# Maybe#toString :: Maybe a ~> String
   toString: () => string;
@@ -492,12 +483,12 @@ export interface Sanctuary {
 //# prop :: Accessible a => String -> a -> b
   prop<A extends Accessible, K extends keyof A>(p: K, obj: A): A[K];
 
-//# get :: Accessible a => TypeRep b -> String -> a -> Maybe b
-  get<A extends Accessible, K extends keyof A, B extends A[K]>(typeRep: Type<B>, p: K, obj: A): Maybe<B>;
-  get<A extends Accessible, B>(pred: Pred<A>, p: string, obj: A): Maybe<B>;
+//# get :: Accessible a => (b -> Boolean) -> String -> a -> Maybe c
+  get<A extends Accessible, K extends keyof A, B extends A[K]>(pred: IsFnType<A>, p: K, obj: A): Maybe<B>;
+  get<A extends Accessible, B>(pred: IsFnType<A>, p: string, obj: A): Maybe<B>;
 
-//# gets :: Accessible a => TypeRep b -> Array String -> a -> Maybe b
-  gets<A extends Accessible, B>(pred: Pred<A>, path: string[], object: A): Maybe<B>;
+//# gets :: Accessible a => (b -> Boolean) -> Array String -> a -> Maybe c
+  gets<A extends Accessible, B>(pred: IsFnType<A>, path: string[], object: A): Maybe<B>;
 
 //# keys :: StrMap a -> Array String
   keys(object: Object): string[];
