@@ -203,9 +203,8 @@ const fnThreeOp = (x: string) => (y: boolean): num => -1;
 // Object
 (() => {
   const a: number = S.prop('a', {a: 1});
-  // const b: Maybe<number> = S.get<number>(<any>Number, 'a', {}); // -
-  const b: Maybe<number> = S.get(Number, 'a', {});
-  const c: Maybe<number> = S.gets(Number, ['b'], {});
+  const b: Maybe<number> = S.get(S.is(Number), 'a', {});
+  const c: Maybe<number> = S.gets(S.is(Number), ['b'], {});
   const d: string[] = S.keys({});
   const e: any[] = S.values({});
   const f: Array<[string,any]> = S.pairs({});
@@ -239,7 +238,8 @@ const fnThreeOp = (x: string) => (y: boolean): num => -1;
   const a: Maybe<Date> = S.parseDate('');
   const b: Maybe<number> = S.parseFloat('');
   const c: Maybe<number> = S.parseInt(10, '');
-  const d: Maybe<number> = S.parseJson(Number, ''); // not great, without a hint it's inferred as Maybe<any>
+  const d: Maybe<number> = S.parseJson(S.is(Number), '');
+  const e: Maybe<number> = S.parseJson<number>(S.is(Number), '');
 })();
 
 // RegExp

@@ -35,38 +35,21 @@ interface Type<T> extends Function {
 }
 type TypeRep<T> = Type<T>;
 
-/* attempts at typing type ref
- interface TypeRep<T> {
- '@@type': string;
- }
-
- interface String extends TypeRep<String> {
- }
-
- interface Number extends TypeRep<Number> {
- }
- */
-
 type Accessible = Primitive | Struct<any>;
 type Integer = number; // - fractions
 type FiniteNumber = number; // - Infinity, -Infinity, NaN
 type NonZeroFiniteNumber = number; // - Infinity, -Infinity, 0, -0, NaN
 type ValidNumber = number; // - NaN
 
-export interface Functor<F> {
-}
+export interface Functor<F> {}
 
-export interface Apply<F> {
-}
+export interface Apply<F> {}
 
-export interface Chain<M> {
-}
+export interface Chain<M> {}
 
-interface Array<A> extends Functor<A>, Apply<A> {
-}
+interface Array<A> extends Functor<A>, Apply<A> {}
 
-export interface MaybeFunc<M, N, T extends (m: M)=>N> extends Apply<T>, Maybe<T> {
-}
+export interface MaybeFunc<M, N, T extends (m: M)=>N> extends Apply<T>, Maybe<T> {}
 
 export interface Semigroup<T> {
   concat: (other: Semigroup<T>) => Semigroup<T>;
@@ -77,8 +60,7 @@ export interface MaybeSemigroup<T extends Semigroup<T>> extends Maybe<T> {
   concat(other: Maybe<T>): Maybe<T>;
 }
 
-export interface Applicative<T> {
-}
+export interface Applicative<T> {}
 
 export interface Foldable<F> {
   reduce<A>(fn: (acc: A, item: F) => A, zero: A): A;
@@ -512,10 +494,10 @@ export interface Sanctuary {
 
 //# get :: Accessible a => TypeRep b -> String -> a -> Maybe b
   get<A extends Accessible, K extends keyof A, B extends A[K]>(typeRep: Type<B>, p: K, obj: A): Maybe<B>;
-  get<B>(typeRep: Type<B>, p: string, obj: Accessible): Maybe<B>;
+  get<A extends Accessible, B>(pred: Pred<A>, p: string, obj: A): Maybe<B>;
 
 //# gets :: Accessible a => TypeRep b -> Array String -> a -> Maybe b
-  gets<A extends Accessible, B>(typeRep: Type<B>, path: string[], object: A): Maybe<B>;
+  gets<A extends Accessible, B>(pred: Pred<A>, path: string[], object: A): Maybe<B>;
 
 //# keys :: StrMap a -> Array String
   keys(object: Object): string[];
@@ -583,7 +565,7 @@ export interface Sanctuary {
   parseInt(radix: Integer, input: string): Maybe<Integer>;
 
 //# parseJson :: TypeRep a -> String -> Maybe a
-  parseJson<A>(typeRep: Type<A>, input: string): Maybe<A>;
+  parseJson<A>(pred: Pred<any>, input: string): Maybe<A>;
 
 
 //. ### RegExp
