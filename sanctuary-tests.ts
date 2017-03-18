@@ -12,6 +12,7 @@ const S = (<SanctuaryModule>SanctuaryMod).create({checkTypes: false, env: Sanctu
 // for sanctuary-types module which would fail at runtime.
 
 type num = number;
+type num2num = (_: number) => number;
 const fnInc = (x: num): num => x + 1;
 const fnAdd = (x: num) => (y: num): num => x + y;
 const fnStrLen = (x: string): num => x.length;
@@ -50,6 +51,15 @@ const fnThreeOp = (x: string) => (y: boolean): num => -1;
   const _lift2: Maybe<number> = S.lift2(add, S.Just(1), S.toMaybe(2));
   const d = <Acc,Item>(op: (acc: Acc, item: Item) => Acc) => <Acc>(zero: Acc) => <Item>(input: Item[]): Acc => zero;
   const _lift3: Maybe<number> = S.lift3(d, S.Just(add), S.Just(0), S.toMaybe([1, 2, 3]));
+  const _curry2: (a: num) => num = S.curry2(Math.pow)(10);
+  const _curry3: (a: string) => string = S.curry3((what: string, replacement: string, string: string) => string.replace(what, replacement))('banana')('orange');
+  const _curry4: {x: num,y: num,width: num,height: num} = S.curry4((x: num, y: num, width: num, height: num) => ({
+    x,
+    y,
+    width,
+    height
+  }))(0)(1)(10)(20);
+  const _curry5: num = S.curry5((a: num, b: num, c: num, d: num, e: num) => a + b + c + d + e)(1)(2)(3)(4)(5);
 })();
 
 // Composition
@@ -73,14 +83,19 @@ const fnThreeOp = (x: string) => (y: boolean): num => -1;
   const c1: MaybeFunc<num, num, (x: num)=>num> = S.toMaybe(fnInc);
   const c2: Apply<number> = S.toMaybe(4);
   const c50: Maybe<number> = S.ap<MaybeFunc<num, num, (x: num)=>num>, num, num, (x: num)=>num>(S.toMaybe(fnInc), S.toMaybe(4));
-  // const c51: num[] = S.ap([fnInc, Math.sqrt], [4, 9, 16]); // TODO
+  const c51: num[] = S.ap<Array<num2num>, num, num>([fnInc, Math.sqrt], [4, 9, 16]);
+  const c52: num[] = S.apFirst([1, 2], [3, 4]);
+  const c53: num[] = S.apSecond([1, 2], [3, 4]);
+  const c54: Either<string, num> = S.bimap(S.toUpper, Math.sqrt, S.Left('foo'));
+  const c55: Either<string, num> = S.bimap(S.toUpper, Math.sqrt, S.Right(64));
   const d: boolean = S.toMaybe(fnInc).isJust;
   const maybeNumber = (s: string): Maybe<number> => S.toMaybe(s.length);
   const e: Maybe<number> = S.chain(maybeNumber, S.toMaybe<string>('')); // flatMap
+  // const e2: num[] = S.chain(x => [x, x], [1, 2, 3]);
   const f: Semigroup<any[]> = [];
   const g: MaybeSemigroup<number[]> = S.toMaybe([1]);
   const h: Maybe<number> = S.Just(0);
-  const ch: Maybe<number> = S.Nothing; // meh, ugly. but without type variable it's not working
+  const ch: Maybe<number> = S.Nothing;
   // const i: MaybeSemigroup<number[]> = S.toMaybe([1]).concat(S.Just([2])); // TODO
   // const j: MaybeSemigroup<number[]> = S.toMaybe([1]).concat(S.Nothing); // a bit ugly // TODO
   const k: Maybe<any> = S.Nothing;
@@ -262,4 +277,19 @@ const fnThreeOp = (x: string) => (y: boolean): num => -1;
   const e: string = S.unwords(['a']);
   const f: string[] = S.lines('a');
   const g: string = S.unlines(['a']);
+  const _splitOn: string[] = S.splitOn(",", "a,b,c");
+})();
+
+// Showable
+(() => {
+  const _toString: string = S.toString(1);
+})();
+
+// Fantasy land
+(() => {
+  //const _empty_1: string = S.empty<string, String>(<any>String); // ugly and verbose, TSC fails to infer TypeRep<string> for StringConstructor
+  const _empty_2: string = S.empty<string>(<any>String); // ugly, string !== String...
+  const _zero_1: any[] = S.zero(Array);
+  const _zero_2: Object = S.zero(Object);
+  const _zero_3: Maybe<any> = S.zero(S.Maybe);
 })();

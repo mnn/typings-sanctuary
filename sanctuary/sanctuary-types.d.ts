@@ -48,7 +48,9 @@ export interface Apply<F> {}
 
 export interface Chain<M> {}
 
-interface Array<A> extends Functor<A>, Apply<A> {}
+export interface Monoid<M> {}
+
+interface Array<A> extends Functor<A>, Apply<A>, Chain<A> {}
 
 export interface MaybeFunc<M, N, T extends (m: M)=>N> extends Apply<T>, Maybe<T> {}
 
@@ -67,6 +69,8 @@ export interface Foldable<F> {
   reduce<A>(fn: (acc: A, item: F) => A, zero: A): A;
 }
 
+export interface Bifunctor<T, U> {}
+
 export interface NonGlobalRegExp extends RegExp {}
 
 export interface GlobalRegExp extends RegExp {}
@@ -76,8 +80,11 @@ export interface RegexMatchResult {
   groups: Maybe<string>[];
 }
 
+interface StringConstructor extends TypeRep<string> {}
+
+
 //. ### Maybe type
-export interface Maybe<A> extends Functor<A>, Foldable<A> {
+export interface Maybe<A> extends Functor<A>, Foldable<A>, Chain<A> {
   value: A;
 
 //# Maybe#isNothing :: Boolean
@@ -95,7 +102,7 @@ export interface Maybe<A> extends Functor<A>, Foldable<A> {
 
 //# MaybeType :: Type -> Type
 //# Maybe :: TypeRep Maybe
-export interface MaybeStatic {
+export interface MaybeStatic extends TypeRep<Maybe<any>> {
 }
 
 //. ### Either type
@@ -113,7 +120,7 @@ export interface EitherFunc<A, B extends (m: M)=>N, M, N> extends Either<A, B> {
 
 //# EitherType :: Type -> Type -> Type
 //# Either :: TypeRep Either
-export interface Either<A, B> {
+export interface Either<A, B> extends Bifunctor<A, B> {
 //# Either#@@type :: String
 //# Either#isLeft :: Boolean
   isLeft: boolean;
@@ -166,10 +173,37 @@ export interface Sanctuary {
   is<A>(typeRep: Type<A>, toTest: any): toTest is A;
   is<A>(typeRep: Type<A>): (toTest: any) => toTest is A;
 
+//. ### Showable
+//# toString :: Any -⁠> String
+  toString: (a: any) => string;
+
+
 //. ### Fantasy Land
 //# or :: Alternative a => a -> a -> a
   alt<A extends Alt<A>>(first: A, second: A): A;
 
+//# ap :: Apply f => f (a -> b) -> f a -> f b
+  ap<A extends MaybeFunc<M, N, T>, M, N, T extends(m: M)=>N>(fn: A, a: Maybe<M>): Maybe<N>;
+  ap<A extends Array<(t: T) => U>, T, U>(fn: A, a: T[]): U[];
+  ap<A extends Apply<T>, T extends(m: M)=>N, M, N>(fn: A, a: Apply<M>): Apply<N>;
+
+//# apFirst :: Apply f => f a -⁠> f b -⁠> f a
+  apFirst<A extends Apply<T>, B extends Apply<U>, T, U>(a: A, b: B): A;
+
+//# apSecond :: Apply f => f a -⁠> f b -⁠> f b
+  apSecond<A extends Apply<T>, B extends Apply<U>, T, U>(a: A, b: B): B;
+
+//# bimap :: Bifunctor f => (a -⁠> b) -⁠> (c -⁠> d) -⁠> f a c -⁠> f b d
+  bimap<A, B, C, D, T extends Either<A, C>, U extends Either<B, D>>(mapFnA: (a: A) => B, mapFnB: (c: C) => D, input: T): U;
+  bimap<A, B, C, D>(mapFnA: (a: A) => B, mapFnB: (c: C) => D, input: Bifunctor<A, C>): Bifunctor<B, D>;
+  // bimap<A, B, C, D, Bif<any, any> extends Bifunctor<any, any>>(mapFnA: (a: A) => B, mapFnB: (c: C) => D, input: Bif<A, C>): Bif<B, D>;
+
+//# empty :: Monoid a => TypeRep a -⁠> a
+  empty<A>(a: TypeRep<A>): A;
+  //empty<A, T extends Monoid<A>>(a: TypeRep<A>): T; // nice, but TSC fails to use it properly
+
+//# zero :: Plus f => TypeRep f -⁠> f a
+  zero<A>(a: TypeRep<A>): A;
 
 //. ### Combinator
 //# I :: a -> a
@@ -188,6 +222,7 @@ export interface Sanctuary {
 //# flip :: (a -> b -> c) -> b -> a -> c
   flip<A, B, C>(fn: (a: A)=>(b: B)=>C, b: B, a: A): C;
 
+
 //. ### Function
 //# flip_ :: ((a, b) -> c) -> b -> a -> c
   flip_<A, B, C>(fn: (a: A, b: B) => C): (b: B, a?: A) => C;
@@ -199,10 +234,6 @@ export interface Sanctuary {
 //# map :: Functor f => (a -> b) -> f a -> f b
   map<A, B, C extends Functor<A>, D extends C>(fn: (a: A) => B, fa: C): D;
 
-//# ap :: Apply f => f (a -> b) -> f a -> f b
-  ap<A extends MaybeFunc<M, N, T>, M, N, T extends(m: M)=>N>(fn: A, a: Maybe<M>): Maybe<N>;
-  ap<A extends Apply<T>, T extends(m: M)=>N, M, N>(fn: A, a: Apply<M>): Apply<N>;
-
 //# lift2 :: Apply f => (a -> b -> c) -> f a -> f b -> f c
   lift2<A, B, C, D extends Functor<A>, E extends Functor<B>>(fn: (a: A) => (b: B) => C, fa: D, fb: E): any;
 
@@ -212,6 +243,7 @@ export interface Sanctuary {
 //# chain :: Chain m => (a -> m b) -> m a -> m b
   chain: <A, B>(fn: (a: A) => Maybe<B>, a: Maybe<A>) => Maybe<B>;
   // chain: <A, B>(fn: (a: A) => B[], a: A[]) => B[]; // TODO: error TS2403: Subsequent variable declarations must have the same type.
+  // chain: <T extends Chain<A>, U extends Chain<B>, A, B>(fn: (a: A) => U, a: T) => U;
 
 
 //. ### Composition
@@ -281,6 +313,19 @@ export interface Sanctuary {
   pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>N, (n: N)=>O, (o: O)=>P, (p: P)=>Q, (q: Q)=>R, (r: R)=>S, (s: S)=>T, (t: T)=>U, (u: U)=>V, (v: V)=>W, (w: W)=>X, (x: X)=>Z]): (a: A)=>Z;
   pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>N, (n: N)=>O, (o: O)=>P, (p: P)=>Q, (q: Q)=>R, (r: R)=>S, (s: S)=>T, (t: T)=>U, (u: U)=>V, (v: V)=>W, (w: W)=>X, (x: X)=>Y, (y: Y)=>Z]): (a: A)=>Z;
 // pipe<A, Z>(functions: Array<(any)=>any>): (A)=>Z;
+
+//# curry2 :: ((a, b) -⁠> c) -⁠> a -⁠> b -⁠> c
+  curry2<A, B, C>(f: (a: A, b: B) => C): (a: A) => (b: B) => C;
+
+//# curry3 :: ((a, b, c) -⁠> d) -⁠> a -⁠> b -⁠> c -⁠> d
+  curry3<A, B, C, D>(f: (a: A, b: B, c: C) => D): (a: A) => (b: B) => (c: C) => D;
+
+//# curry4 :: ((a, b, c, d) -⁠> e) -⁠> a -⁠> b -⁠> c -⁠> d -⁠> e
+  curry4<A, B, C, D, E>(f: (a: A, b: B, c: C, d: D) => E): (a: A) => (b: B) => (c: C) => (d: D) => E;
+
+//# curry5 :: ((a, b, c, d, e) -⁠> f) -⁠> a -⁠> b -⁠> c -⁠> d -⁠> e -> f
+  curry5<A, B, C, D, E, F>(f: (a: A, b: B, c: C, d: D, e: E) => F): (a: A) => (b: B) => (c: C) => (d: D) => (e: E) => F;
+
 
 //# MaybeType :: Type -> Type
   Maybe: MaybeStatic;
@@ -599,4 +644,6 @@ export interface Sanctuary {
 //# unlines :: Array String -> String
   unlines(input: string[]): string;
 
+//# splitOn :: String -⁠> String -⁠> Array String
+  splitOn(delim: String, input: string): string[];
 }
