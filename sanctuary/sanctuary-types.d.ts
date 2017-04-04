@@ -54,7 +54,7 @@ type NonZeroFiniteNumber = number; // - Infinity, -Infinity, 0, -0, NaN
 type ValidNumber = number; // - NaN
 
 export interface Functor<F> {
-  map<U>(fn: (f: F) => U): Functor<U>;
+  'fantasy-land/map'<U>(fn: (f: F) => U): Functor<U>
 }
 
 export interface MaybeFunc<M, N, T extends (m: M)=>N> extends Maybe<T> {
