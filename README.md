@@ -13,7 +13,7 @@ Almost everything is typed. Consider this project to be a beta version, there ma
 Installation
 -----------
 
-Fast
+Fast (only Linux)
 ----
 
 For now just a hacky solution. (Typings tool with GitHub address can't be used, because it doesn't support multiple files - it breaks typings for `Maybe` and other types.)

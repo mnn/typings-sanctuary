@@ -1,13 +1,13 @@
 {
   "name": "typings-sanctuary",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "monnef",
   "description": "type definitions for Sanctuary",
   "scripts": {
     "test": "./node_modules/typescript/bin/tsc sanctuary-tests.ts && sed -i'' -r \"s/\\.\\/sanctuary\\/index/sanctuary/\" sanctuary-tests.js && node sanctuary-tests.js"
   },
   "devDependencies": {
-    "sanctuary": "^0.11.1",
-    "typescript": "^2.1.6"
+    "sanctuary": "0.12.2",
+    "typescript": "2.2.2"
   }
 }

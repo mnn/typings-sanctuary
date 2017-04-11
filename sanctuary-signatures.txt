@@ -1,0 +1,206 @@
+//. # Sanctuary
+//. ## Types
+//. ### Accessible pseudotype
+//. ### Integer pseudotype
+//. ### Type representatives
+//. ## Type checking
+//. ## API
+  //# create :: { checkTypes :: Boolean, env :: Array Type } -> Module
+  //# env :: Array Type
+  //. ### Placeholder
+  //# __ :: Placeholder
+  //. ### Classify
+  //# type :: Any -> String
+  //# is :: TypeRep a -> Any -> Boolean
+  //. ### Showable
+  //# toString :: Any -> String
+  //. ### Fantasy Land
+  //# equals :: Setoid a => a -> a -> Boolean
+  //# concat :: Semigroup a => a -> a -> a
+  //# empty :: Monoid a => TypeRep a -> a
+  //# map :: Functor f => (a -> b) -> f a -> f b
+  //# bimap :: Bifunctor f => (a -> b) -> (c -> d) -> f a c -> f b d
+  //# promap :: Profunctor p => (a -> b) -> (c -> d) -> p b c -> p a d
+  //# alt :: Alt f => f a -> f a -> f a
+  //# zero :: Plus f => TypeRep f -> f a
+  //# reduce :: Foldable f => (b -> a -> b) -> b -> f a -> b
+  //# reduce_ :: Foldable f => ((b, a) -> b) -> b -> f a -> b
+  //# traverse :: (Applicative f, Traversable t) => TypeRep f -> (a -> f b) -> t a -> f (t b)
+  //# sequence :: (Applicative f, Traversable t) => TypeRep f -> t (f a) -> f (t a)
+  //# ap :: Apply f => f (a -> b) -> f a -> f b
+  //# lift2 :: Apply f => (a -> b -> c) -> f a -> f b -> f c
+  //# lift3 :: Apply f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
+  //# apFirst :: Apply f => f a -> f b -> f a
+  //# apSecond :: Apply f => f a -> f b -> f b
+  //# of :: Applicative f => TypeRep f -> a -> f a
+  //# chain :: Chain m => (a -> m b) -> m a -> m b
+  //# join :: Chain m => m (m a) -> m a
+  //# chainRec :: ChainRec m => TypeRep m -> (a -> m (Either a b)) -> a -> m b
+  //# extend :: Extend w => (w a -> b) -> w a -> w b
+  //# extract :: Comonad w => w a -> a
+  //# filter :: (Applicative f, Foldable f, Monoid (f a)) => (a -> Boolean) -> f a -> f a
+  //# filterM :: (Monad m, Monoid (m a)) => (a -> Boolean) -> m a -> m a
+  //. ### Combinator
+  //# I :: a -> a
+  //# K :: a -> b -> a
+  //# A :: (a -> b) -> a -> b
+  //# T :: a -> (a -> b) -> b
+  //. ### Function
+  //# curry2 :: ((a, b) -> c) -> a -> b -> c
+  //# curry3 :: ((a, b, c) -> d) -> a -> b -> c -> d
+  //# curry4 :: ((a, b, c, d) -> e) -> a -> b -> c -> d -> e
+  //# curry5 :: ((a, b, c, d, e) -> f) -> a -> b -> c -> d -> e -> f
+  //# flip :: (a -> b -> c) -> b -> a -> c
+  //# flip_ :: ((a, b) -> c) -> b -> a -> c
+  //. ### Composition
+  //# compose :: (b -> c) -> (a -> b) -> a -> c
+  //# pipe :: [(a -> b), (b -> c), ..., (m -> n)] -> a -> n
+  //# on :: (b -> b -> c) -> (a -> b) -> a -> a -> c
+  //# on_ :: ((b, b) -> c) -> (a -> b) -> a -> a -> c
+  //. ### Maybe type
+  //# MaybeType :: Type -> Type
+  //# Maybe :: TypeRep Maybe
+  //# Nothing :: Maybe a
+  //# Just :: a -> Maybe a
+  //# Maybe.@@type :: String
+  //# Maybe.fantasy-land/empty :: () -> Maybe a
+  //# Maybe.fantasy-land/of :: a -> Maybe a
+  //# Maybe.fantasy-land/zero :: () -> Maybe a
+  //# Maybe#isNothing :: Maybe a ~> Boolean
+  //# Maybe#isJust :: Maybe a ~> Boolean
+  //# Maybe#toString :: Maybe a ~> () -> String
+  //# Maybe#inspect :: Maybe a ~> () -> String
+  //# Maybe#fantasy-land/equals :: Maybe a ~> Maybe a -> Boolean
+  //# Maybe#fantasy-land/concat :: Semigroup a => Maybe a ~> Maybe a -> Maybe a
+  //# Maybe#fantasy-land/map :: Maybe a ~> (a -> b) -> Maybe b
+  //# Maybe#fantasy-land/ap :: Maybe a ~> Maybe (a -> b) -> Maybe b
+  //# Maybe#fantasy-land/chain :: Maybe a ~> (a -> Maybe b) -> Maybe b
+  //# Maybe#fantasy-land/alt :: Maybe a ~> Maybe a -> Maybe a
+  //# Maybe#fantasy-land/reduce :: Maybe a ~> ((b, a) -> b, b) -> b
+  //# Maybe#fantasy-land/traverse :: Applicative f => Maybe a ~> (TypeRep f, a -> f b) -> f (Maybe b)
+  //# Maybe#fantasy-land/extend :: Maybe a ~> (Maybe a -> b) -> Maybe b
+  //# isNothing :: Maybe a -> Boolean
+  //# isJust :: Maybe a -> Boolean
+  //# fromMaybe :: a -> Maybe a -> a
+  //# fromMaybe_ :: (() -> a) -> Maybe a -> a
+  //# maybeToNullable :: Maybe a -> Nullable a
+  //# toMaybe :: a? -> Maybe a
+  //# maybe :: b -> (a -> b) -> Maybe a -> b
+  //# maybe_ :: (() -> b) -> (a -> b) -> Maybe a -> b
+  //# justs :: Array (Maybe a) -> Array a
+  //# mapMaybe :: (a -> Maybe b) -> Array a -> Array b
+  //# encase :: (a -> b) -> a -> Maybe b
+  //# encase2 :: (a -> b -> c) -> a -> b -> Maybe c
+  //# encase2_ :: ((a, b) -> c) -> a -> b -> Maybe c
+  //# encase3 :: (a -> b -> c -> d) -> a -> b -> c -> Maybe d
+  //# encase3_ :: ((a, b, c) -> d) -> a -> b -> c -> Maybe d
+  //# maybeToEither :: a -> Maybe b -> Either a b
+  //. ### Either type
+  //# EitherType :: Type -> Type -> Type
+  //# Either :: TypeRep Either
+  //# Left :: a -> Either a b
+  //# Right :: b -> Either a b
+  //# Either.@@type :: String
+  //# Either.fantasy-land/of :: b -> Either a b
+  //# Either#isLeft :: Either a b ~> Boolean
+  //# Either#isRight :: Either a b ~> Boolean
+  //# Either#toString :: Either a b ~> () -> String
+  //# Either#inspect :: Either a b ~> () -> String
+  //# Either#fantasy-land/equals :: Either a b ~> Either a b -> Boolean
+  //# Either#fantasy-land/concat :: (Semigroup a, Semigroup b) => Either a b ~> Either a b -> Either a b
+  //# Either#fantasy-land/map :: Either a b ~> (b -> c) -> Either a c
+  //# Either#fantasy-land/bimap :: Either a b ~> (a -> c, b -> d) -> Either c d
+  //# Either#fantasy-land/ap :: Either a b ~> Either a (b -> c) -> Either a c
+  //# Either#fantasy-land/chain :: Either a b ~> (b -> Either a c) -> Either a c
+  //# Either#fantasy-land/alt :: Either a b ~> Either a b -> Either a b
+  //# Either#fantasy-land/reduce :: Either a b ~> ((c, b) -> c, c) -> c
+  //# Either#fantasy-land/traverse :: Applicative f => Either a b ~> (TypeRep f, b -> f c) -> f (Either a c)
+  //# Either#fantasy-land/extend :: Either a b ~> (Either a b -> c) -> Either a c
+  //# isLeft :: Either a b -> Boolean
+  //# isRight :: Either a b -> Boolean
+  //# fromEither :: b -> Either a b -> b
+  //# toEither :: a -> b? -> Either a b
+  //# either :: (a -> c) -> (b -> c) -> Either a b -> c
+  //# lefts :: Array (Either a b) -> Array a
+  //# rights :: Array (Either a b) -> Array b
+  //# encaseEither :: (Error -> l) -> (a -> r) -> a -> Either l r
+  //# encaseEither2 :: (Error -> l) -> (a -> b -> r) -> a -> b -> Either l r
+  //# encaseEither2_ :: (Error -> l) -> ((a, b) -> r) -> a -> b -> Either l r
+  //# encaseEither3 :: (Error -> l) -> (a -> b -> c -> r) -> a -> b -> c -> Either l r
+  //# encaseEither3_ :: (Error -> l) -> ((a, b, c) -> r) -> a -> b -> c -> Either l r
+  //# eitherToMaybe :: Either a b -> Maybe b
+  //. ### Logic
+  //# and :: Boolean -> Boolean -> Boolean
+  //# or :: Boolean -> Boolean -> Boolean
+  //# not :: Boolean -> Boolean
+  //# complement :: (a -> Boolean) -> a -> Boolean
+  //# ifElse :: (a -> Boolean) -> (a -> b) -> (a -> b) -> a -> b
+  //# allPass :: Array (a -> Boolean) -> a -> Boolean
+  //# anyPass :: Array (a -> Boolean) -> a -> Boolean
+  //. ### List
+  //# concat :: Semigroup a => a -> a -> a
+  //# slice :: Integer -> Integer -> List a -> Maybe (List a)
+  //# at :: Integer -> List a -> Maybe a
+  //# head :: List a -> Maybe a
+  //# last :: List a -> Maybe a
+  //# tail :: List a -> Maybe (List a)
+  //# init :: List a -> Maybe (List a)
+  //# take :: Integer -> List a -> Maybe (List a)
+  //# takeLast :: Integer -> List a -> Maybe (List a)
+  //# drop :: Integer -> List a -> Maybe (List a)
+  //# dropLast :: Integer -> List a -> Maybe (List a)
+  //# reverse :: List a -> List a
+  //# indexOf :: a -> List a -> Maybe Integer
+  //# lastIndexOf :: a -> List a -> Maybe Integer
+  //. ### Array
+  //# append :: (Applicative f, Semigroup (f a)) => a -> f a -> f a
+  //# prepend :: (Applicative f, Semigroup (f a)) => a -> f a -> f a
+  //# joinWith :: String -> Array String -> String
+  //# find :: (a -> Boolean) -> Array a -> Maybe a
+  //# pluck :: Accessible a => String -> Array a -> Array b
+  //# unfoldr :: (b -> Maybe (Pair a b)) -> b -> Array a
+  //# range :: Integer -> Integer -> Array Integer
+  //. ### Object
+  //# prop :: Accessible a => String -> a -> b
+  //# props :: Accessible a => Array String -> a -> b
+  //# get :: Accessible a => (b -> Boolean) -> String -> a -> Maybe c
+  //# gets :: Accessible a => (b -> Boolean) -> Array String -> a -> Maybe c
+  //# keys :: StrMap a -> Array String
+  //# values :: StrMap a -> Array a
+  //# pairs :: StrMap a -> Array (Pair String a)
+  //. ### Number
+  //# negate :: ValidNumber -> ValidNumber
+  //# add :: FiniteNumber -> FiniteNumber -> FiniteNumber
+  //# sum :: Foldable f => f FiniteNumber -> FiniteNumber
+  //# sub :: FiniteNumber -> FiniteNumber -> FiniteNumber
+  //# inc :: FiniteNumber -> FiniteNumber
+  //# dec :: FiniteNumber -> FiniteNumber
+  //# mult :: FiniteNumber -> FiniteNumber -> FiniteNumber
+  //# product :: Foldable f => f FiniteNumber -> FiniteNumber
+  //# div :: FiniteNumber -> NonZeroFiniteNumber -> FiniteNumber
+  //# mean :: Foldable f => f FiniteNumber -> Maybe FiniteNumber
+  //# min :: Ord a => a -> a -> a
+  //# max :: Ord a => a -> a -> a
+  //. ### Integer
+  //# even :: Integer -> Boolean
+  //# odd :: Integer -> Boolean
+  //. ### Parse
+  //# parseDate :: String -> Maybe Date
+  //# parseFloat :: String -> Maybe Number
+  //# parseInt :: Integer -> String -> Maybe Integer
+  //# parseJson :: (a -> Boolean) -> String -> Maybe b
+  //. ### RegExp
+  //# regex :: RegexFlags -> String -> RegExp
+  //# regexEscape :: String -> String
+  //# test :: RegExp -> String -> Boolean
+  //# match :: NonGlobalRegExp -> String -> Maybe { match :: String, groups :: Array (Maybe String) }
+  //# matchAll :: GlobalRegExp -> String -> Array { match :: String, groups :: Array (Maybe String) }
+  //. ### String
+  //# toUpper :: String -> String
+  //# toLower :: String -> String
+  //# trim :: String -> String
+  //# words :: String -> Array String
+  //# unwords :: Array String -> String
+  //# lines :: String -> Array String
+  //# unlines :: Array String -> String
+  //# splitOn :: String -> String -> Array String

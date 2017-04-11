@@ -1,7 +1,7 @@
 import SanctuaryMod = require('./sanctuary/index');
 import {
   Maybe, Semigroup, MaybeSemigroup, SanctuaryModule, Either, EitherFunc,
-  EitherSemigroup
+  EitherSemigroup, Apply, MaybeFunc, RegexMatchResult, Type, IsFnType
 } from './sanctuary/sanctuary-types';
 
 // Cast is not required, you can use commented out version. Cast is here only to help IDE (IDEA) with type inferring.
@@ -11,10 +11,12 @@ const S = (<SanctuaryModule>SanctuaryMod).create({checkTypes: false, env: Sanctu
 // Note: One cannot use statement like `const Maybe = S.Maybe` because then TS compiler would emmit a require call
 // for sanctuary-types module which would fail at runtime.
 
-const fnInc = (x: number): number => x + 1;
-const fnAdd = (x: number) => (y: number): number => x + y;
-const fnStrLen = (x: string): number => x.length;
-const fnThreeOp = (x: string) => (y: boolean): number => -1;
+type num = number;
+type num2num = (_: number) => number;
+const fnInc = (x: num): num => x + 1;
+const fnAdd = (x: num) => (y: num): num => x + y;
+const fnStrLen = (x: string): num => x.length;
+const fnThreeOp = (x: string) => (y: boolean): num => -1;
 
 // Semigroup
 (() => {
@@ -26,76 +28,87 @@ const fnThreeOp = (x: string) => (y: boolean): number => -1;
 (() => {
   const a: string = S.type('');
   const b: boolean = S.is(Number, 4);
+  const c: boolean = S.is(Number)(4);
 })();
 
 // Combinator
 (() => {
-  type n = number;
-  const a: n = S.I(1);
-  const b: n = S.K(2);
-  const c: n = S.K(3, '');
-  const d: n = S.A(fnInc, 0);
-  const e: n = S.T(0, fnInc);
-  const f: n = S.C(fnThreeOp, true, '');
-  const g: n = S.B(Math.sqrt, fnInc, 99);
-  const h: n = S.S(fnAdd, Math.sqrt, 100);
+  const a: num = S.I(1);
+  const b: num = S.K(2);
+  const c: num = S.K(3, '');
+  const d: num = S.A(fnInc, 0);
+  const e: num = S.T(0, fnInc);
 })();
 
 // Function
 (() => {
-  const a: (a: string, b: number) => boolean = S.flip((b: number, a: string) => false);
-  const b: Maybe<number> = S.lift(fnInc, S.Maybe.of(1));
+  const _flip: num = S.flip(fnThreeOp, true, '');
+  const _flip_: (a: string, b: number) => boolean = S.flip_((b: number, a: string) => false);
+  const _map: Maybe<number> = S.map(fnInc, S.toMaybe(1));
+  const _map2: num[] = S.map(fnInc, [1]);
+  const _map3: {a: num} = S.map(fnInc, {a: 1});
   const add = (a: number) => (b: number): number => a + b;
-  const c: Maybe<number> = S.lift2(add, S.Just(1), S.Maybe.of(2));
+  const _lift2: Maybe<number> = S.lift2(add, S.Just(1), S.toMaybe(2));
   const d = <Acc,Item>(op: (acc: Acc, item: Item) => Acc) => <Acc>(zero: Acc) => <Item>(input: Item[]): Acc => zero;
-  const e: Maybe<number> = S.lift3(d, S.Just(add), S.Just(0), S.Maybe.of([1, 2, 3]));
+  const _lift3: Maybe<number> = S.lift3(d, S.Just(add), S.Just(0), S.toMaybe([1, 2, 3]));
+  const _curry2: (a: num) => num = S.curry2(Math.pow)(10);
+  const _curry3: (a: string) => string = S.curry3((what: string, replacement: string, string: string) => string.replace(what, replacement))('banana')('orange');
+  const _curry4: {x: num,y: num,width: num,height: num} = S.curry4((x: num, y: num, width: num, height: num) => ({
+    x,
+    y,
+    width,
+    height
+  }))(0)(1)(10)(20);
+  const _curry5: num = S.curry5((a: num, b: num, c: num, d: num, e: num) => a + b + c + d + e)(1)(2)(3)(4)(5);
 })();
 
 // Composition
 (() => {
+  const g: num = S.compose(Math.sqrt, fnInc)(99);
   const a: number = S.compose(fnInc, fnStrLen)('');
   const b: number = S.pipe([fnStrLen, fnInc])('');
   const c: number = S.pipe([fnStrLen, fnStrLen])('');
   const fa = (s: string): number => s.length;
   const fb = (s: number): string => s.toString();
   const d: string = S.pipe([fa, fb, fa, fb, fa, fb, fa, fb, fa, fb])('');
-  const e: string = S.meld([fa, fb])('');
   const fc = (n: number, s: string): string => n + s;
   const fd = (x: number, y: number): number => x + y;
-  const f: string = S.meld([fd, fc])(1, 2, 'x');
 })();
 
 // Maybe
 (() => {
-  const a: Maybe<any> = S.Maybe.empty();
-  const b: Maybe<number> = S.Maybe.of(1);
-  const c: Maybe<number> = S.Maybe.of(fnInc).ap(S.Maybe.of(4));
-  const d: boolean = S.Maybe.of(fnInc).isJust;
-  const maybeNumber = (s: string): Maybe<number> => S.Maybe.of(s.length);
-  const e: Maybe<number> = S.Maybe.of('').chain(maybeNumber); // flatMap
+  const a: Maybe<any> = S.Nothing;
+  const b: Maybe<number> = S.toMaybe(1);
+  const c0: Apply<(x: num)=>num> = S.toMaybe(fnInc);
+  const c1: MaybeFunc<num, num, (x: num)=>num> = S.toMaybe(fnInc);
+  const c2: Apply<number> = S.toMaybe(4);
+  const c50: Maybe<number> = S.ap<MaybeFunc<num, num, (x: num)=>num>, num, num, (x: num)=>num>(S.toMaybe(fnInc), S.toMaybe(4));
+  const c51: num[] = S.ap<Array<num2num>, num, num>([fnInc, Math.sqrt], [4, 9, 16]);
+  const c52: num[] = S.apFirst([1, 2], [3, 4]);
+  const c53: num[] = S.apSecond([1, 2], [3, 4]);
+  const c54: Either<string, num> = S.bimap(S.toUpper, Math.sqrt, S.Left('foo'));
+  const c55: Either<string, num> = S.bimap(S.toUpper, Math.sqrt, S.Right(64));
+  const d: boolean = S.toMaybe(fnInc).isJust;
+  const maybeNumber = (s: string): Maybe<number> => S.toMaybe(s.length);
+  const e: Maybe<number> = S.chain(maybeNumber, S.toMaybe<string>('')); // flatMap
+  // const e2: num[] = S.chain(x => [x, x], [1, 2, 3]);
   const f: Semigroup<any[]> = [];
-  const g: MaybeSemigroup<number[]> = S.Maybe.of([1]);
+  const g: MaybeSemigroup<number[]> = S.toMaybe([1]);
   const h: Maybe<number> = S.Just(0);
-  const ch: Maybe<number> = S.Nothing<number>(); // meh, ugly. but without type variable it's not working
-  const i: MaybeSemigroup<number[]> = S.Maybe.of([1]).concat(S.Just([2]));
-  const j: MaybeSemigroup<number[]> = S.Maybe.of([1]).concat(S.Nothing<number[]>()); // a bit ugly
-  const k: Maybe<any> = S.Nothing();
-  const l: Maybe<number> = S.Maybe.of(1).empty();
-  const m: boolean = S.Maybe.of(1).equals(2);
-  //const n: Maybe<number> = S.Maybe.of(1).extend((a) => a.value);
-  const o: Maybe<number> = S.Maybe.of(1).filter(x=>x > 1);
-  const t: Maybe<number> = S.Maybe.of('').map(fnStrLen);
-  const u: Maybe<number> = S.Maybe.of('').of(0);
-  const v: string = S.Maybe.of(4).reduce((acc, item) => acc + item, '');
-  const w: boolean = S.isNothing(S.Maybe.of(1));
-  const x: boolean = S.isJust(S.Maybe.of(1));
+  const ch: Maybe<number> = S.Nothing;
+  // const i: MaybeSemigroup<number[]> = S.toMaybe([1]).concat(S.Just([2])); // TODO
+  // const j: MaybeSemigroup<number[]> = S.toMaybe([1]).concat(S.Nothing); // a bit ugly // TODO
+  const k: Maybe<any> = S.Nothing;
+  //const n: Maybe<number> = S.toMaybe(1).extend((a) => a.value); // -
+  const w: boolean = S.isNothing(S.toMaybe(1));
+  const x: boolean = S.isJust(S.toMaybe(1));
   const y: number = S.fromMaybe(0, S.Just(42));
   const z: number|null = S.maybeToNullable(S.Just(42));
   const aa: Maybe<number> = S.toMaybe<number>(null);
   const ab: Maybe<number> = S.toMaybe(42);
   const ac: number = S.maybe(0, fnStrLen, S.Just(''));
-  const ad: number[] = S.justs([S.Just(1), S.Nothing<number>()]);
-  const ae = (x: number[]): Maybe<number> => S.Nothing<number>(); // generic variant isn't working even though I think it should
+  const ad: number[] = S.justs([S.Just(1), S.Nothing]);
+  const ae = (x: number[]): Maybe<number> => S.Nothing; // generic variant isn't working even though I think it should
   const af: number[] = S.mapMaybe(ae, [[1]]);
   const ag = (s: string): number => 0;
   const ah = (s: string, t: string): number => 0;
@@ -107,10 +120,9 @@ const fnThreeOp = (x: string) => (y: boolean): number => -1;
   const al: Maybe<number> = S.encase2_(ah, '', '');
   const am: Maybe<number> = S.encase3(achC, '', '', '');
   const an: Maybe<number> = S.encase3_(ach, '', '', '');
-  const ao: boolean = b.toBoolean();
   const ap: string = b.toString();
   const aq: string = b.inspect();
-  //const ar: Either<string, Maybe<number>> = S.Nothing<number>().sequence(S.Either.of);
+  //const ar: Either<string, Maybe<number>> = S.Nothing<number>().sequence(S.Either.of); // -
   // TODO: sequence
 })();
 
@@ -120,29 +132,21 @@ const fnThreeOp = (x: string) => (y: boolean): number => -1;
   type ENB = Either<number, boolean>;
   type ESN = Either<string, number>;
   type E_SGS_SGNA = EitherSemigroup<string, number[]>;
-  const eNS: ENS = S.Either.of('');
-  const a: ENS = S.Either.of('');
+  const eNS: ENS = S.Right('');
+  const a: ENS = S.Right('');
   const b: boolean = eNS.isLeft;
   const c: boolean = eNS.isRight;
-  const d: EitherFunc<number, (a: string)=>number, string, number> = S.Either.of((x: string)=>x.length);
-  const e: ENS = S.Either.of(' ');
-  const f: Either<number, number> = d.ap(e);
+  const d: EitherFunc<number, (a: string)=>number, string, number> = S.Right((x: string)=>x.length);
+  const e: ENS = S.Right(' ');
   const sqrt: (a: number) => ESN = n => n < 0 ?
     S.Left<string, number>('Cannot represent square root of negative number') :
     S.Right<string, number>(Math.sqrt(n));
-  const g: ESN = S.Left<string, number>('err').chain(sqrt);
-  const h: ESN = S.Right(4).chain(sqrt);
   const ch: E_SGS_SGNA = S.Left<string, number[], string, number[]>('abc');
-  const i: E_SGS_SGNA = ch.concat(S.Left<string, number[], string, number[]>('def'));
-  const j: E_SGS_SGNA = ch.concat(S.Right<string, number[], string, number[]>([4]));
-  const k: boolean = a.equals(4);
+  //const i: E_SGS_SGNA = ch.concat(S.Left<string, number[], string, number[]>('def')); // TODO
+  //const j: E_SGS_SGNA = ch.concat(S.Right<string, number[], string, number[]>([4])); // TODO
   const l = (x: ENS): string => '';
-  const m: ENS = a.extend(l);
   const n = (x: string): boolean => Boolean(x);
   // a is ENS
-  const o: ENB = a.map(n);
-  const p: ENB = a.of(true);
-  const q: boolean = a.toBoolean();
   const r: string = a.toString();
   const s: string = a.inspect();
   const t: boolean = S.isLeft(a);
@@ -159,15 +163,13 @@ const fnThreeOp = (x: string) => (y: boolean): number => -1;
   const ac: EE_BA = S.encaseEither3(S.I, (a: string) => (b: number) => (c: boolean) => [true], '', 1, false);
   const ad: EE_BA = S.encaseEither3_(S.I, (a: string, b: number, c: boolean) => [true], '', 1, false);
   const ae: Maybe<string> = S.eitherToMaybe(a);
-  const af: number[] = S.Right(5).reduce((xs, x) => xs.concat([x]), [42]);
-  // TODO: sequence
 })();
 
 // Alternative
 (() => {
-  const a: number[] = S.and([], [1]);
-  const b: Maybe<number> = S.or(S.Just(0), S.Nothing<number>());
-  const c: boolean = S.xor(false, true);
+  const a: number[] = S.alt([], [1]);
+  const b: Maybe<number> = S.alt<Maybe<number>>(S.Just(0), S.Nothing);
+  const c: Maybe<number> = S.alt(S.Just(0), S.Nothing as Maybe<number>);
 })();
 
 // Logic
@@ -176,6 +178,10 @@ const fnThreeOp = (x: string) => (y: boolean): number => -1;
   const b: string = S.ifElse(a=>a > 0, x=>'+' + x, x=>x.toString(), 4);
   const c: boolean = S.allPass([x=>x > 1, x=>x % 2 == 0], 4);
   const d: boolean = S.anyPass([x=>x > 1, x=>x % 2 == 0], 4);
+  const e: boolean = S.and(false)(true);
+  const f: boolean = S.and(false, true);
+  const g: boolean = S.or(false)(true);
+  const h: boolean = S.or(false, true);
 })();
 
 // List
@@ -203,19 +209,18 @@ const fnThreeOp = (x: string) => (y: boolean): number => -1;
   const a: number[] = S.append(2, [1]);
   const b: number[] = S.prepend(1, [2]);
   const c: Maybe<number> = S.find(x => x > 0, [1]);
-  const d: Maybe<number>[] = S.pluck(Number, 'x', [{x: 1}, {x: 2}]);
+  const d: number[] = S.pluck('x', [{x: 1}, {x: 2}]);
   const e: number = S.reduce(acc => item => acc + item, 0, [1]);
   const f: number = S.reduce_((acc, item) => acc + item, 0, [1]);
-  const g: number[] = S.unfoldr<number, number>(n => n < 5 ? S.Just([n, n + 1]) : S.Nothing(), 1);
+  const g: number[] = S.unfoldr<number, number>(n => n < 5 ? S.Just([n, n + 1]) : S.Nothing, 1);
   const h: number[] = S.range(0, 10);
 })();
 
 // Object
 (() => {
   const a: number = S.prop('a', {a: 1});
-  // const b: Maybe<number> = S.get<number>(<any>Number, 'a', {});
-  const b: Maybe<number> = S.get(Number, 'a', {});
-  const c: Maybe<number> = S.gets(Number, ['b'], {});
+  const b: Maybe<number> = S.get<any, number>(S.is(Number), 'a', {});
+  const c: Maybe<number> = S.gets<any, number>(S.is(Number), ['b'], {});
   const d: string[] = S.keys({});
   const e: any[] = S.values({});
   const f: Array<[string,any]> = S.pairs({});
@@ -249,7 +254,7 @@ const fnThreeOp = (x: string) => (y: boolean): number => -1;
   const a: Maybe<Date> = S.parseDate('');
   const b: Maybe<number> = S.parseFloat('');
   const c: Maybe<number> = S.parseInt(10, '');
-  const d: Maybe<number> = S.parseJson(Number, ''); // not great, without a hint it's inferred as Maybe<any>
+  const d: Maybe<number> = S.parseJson<number>(S.is(Number), '');
 })();
 
 // RegExp
@@ -257,7 +262,10 @@ const fnThreeOp = (x: string) => (y: boolean): number => -1;
   const a: RegExp = S.regex('', '');
   const b: string = S.regexEscape('');
   const c: boolean = S.test(new RegExp(''), '');
-  const d: Maybe<Array<Maybe<string>>> = S.match(new RegExp(''), '');
+  const d: Maybe<RegexMatchResult> = S.match(/a/, '');
+  const e: Maybe<RegexMatchResult> = S.match(/a/)('');
+  const f: RegexMatchResult[] = S.matchAll(/a/g)('');
+  const g: RegexMatchResult[] = S.matchAll(/a/g, '');
 })();
 
 // String
@@ -269,4 +277,19 @@ const fnThreeOp = (x: string) => (y: boolean): number => -1;
   const e: string = S.unwords(['a']);
   const f: string[] = S.lines('a');
   const g: string = S.unlines(['a']);
+  const _splitOn: string[] = S.splitOn(",", "a,b,c");
+})();
+
+// Showable
+(() => {
+  const _toString: string = S.toString(1);
+})();
+
+// Fantasy land
+(() => {
+  //const _empty_1: string = S.empty<string, String>(<any>String); // ugly and verbose, TSC fails to infer TypeRep<string> for StringConstructor
+  const _empty_2: string = S.empty<string>(<any>String); // ugly, string !== String...
+  const _zero_1: any[] = S.zero(Array);
+  const _zero_2: Object = S.zero(Object);
+  const _zero_3: Maybe<any> = S.zero(S.Maybe);
 })();

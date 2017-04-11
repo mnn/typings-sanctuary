@@ -5,47 +5,36 @@ export interface SanctuaryModule {
   env: SanctuaryType[];
 }
 
-  // simple types
-  type Ord = number | string | boolean | Date;
-  type Primitive = string | number | boolean;
-  type List<T> = ArrayLike<T>;
-  type StringLike = string | StringRepresentable<string>;
-  type Prop = Primitive | StringRepresentable<Primitive>;
-  type Path = List<Prop>;
-  type Struct<T> = Obj<T> | List<T>;
+// simple types
+type Ord = number | string | boolean | Date;
+type Primitive = string | number | boolean;
+type List<T> = ArrayLike<T>;
+type StringLike = string | StringRepresentable<string>;
+type Prop = Primitive | StringRepresentable<Primitive>;
+type Path = List<Prop>;
+type Struct<T> = Obj<T> | List<T>;
 
-  type Pred<T> = (v: T) => boolean;
-  type ObjPred<T> = (value: T, key: string) => boolean;
+type Pred<T> = (v: T) => boolean;
+type ObjPred<T> = (value: T, key: string) => boolean;
+export type IsFnType<A> = (x: Type<A>) => boolean;
 
-  interface Dictionary<T> {
-      [index: string]: T;
-  }
-  type Obj<T> = Dictionary<T>;
+interface Dictionary<T> {
+  [index: string]: T;
+}
+type Obj<T> = Dictionary<T>;
 
-  interface NumericDictionary<T> {
-      [index: number]: T;
-  }
+interface NumericDictionary<T> {
+  [index: number]: T;
+}
 
-  interface StringRepresentable<T> {
-      toString(): T;
-  }
+interface StringRepresentable<T> {
+  toString(): T;
+}
 
-  interface Type<T> extends Function {
-      new (...args: any[]): T;
-  }
-  type TypeRep<T> = Type<T>;
-
-/* attempts at typing type ref
- interface TypeRep<T> {
- '@@type': string;
- }
-
- interface String extends TypeRep<String> {
- }
-
- interface Number extends TypeRep<Number> {
- }
- */
+export interface Type<T> extends Function {
+  new (...args: any[]): T;
+}
+type TypeRep<T> = Type<T>;
 
 type Accessible = Primitive | Struct<any>;
 type Integer = number; // - fractions
@@ -57,10 +46,15 @@ export interface Functor<F> {
   'fantasy-land/map'<U>(fn: (f: F) => U): Functor<U>
 }
 
-export interface MaybeFunc<M, N, T extends (m: M)=>N> extends Maybe<T> {
-//# Maybe#ap :: Maybe (a -> b) ~> Maybe a -> Maybe b
-  ap: (value: Maybe<M>) => Maybe<N>;
-}
+export interface Apply<F> {}
+
+export interface Chain<M> {}
+
+export interface Monoid<M> {}
+
+interface Array<A> extends Functor<A>, Apply<A>, Chain<A> {}
+
+export interface MaybeFunc<M, N, T extends (m: M)=>N> extends Apply<T>, Maybe<T> {}
 
 export interface Semigroup<T> {
   concat: (other: Semigroup<T>) => Semigroup<T>;
@@ -71,56 +65,35 @@ export interface MaybeSemigroup<T extends Semigroup<T>> extends Maybe<T> {
   concat(other: Maybe<T>): Maybe<T>;
 }
 
-export interface Applicative<T> {
-}
+export interface Applicative<T> {}
 
 export interface Foldable<F> {
   reduce<A>(fn: (acc: A, item: F) => A, zero: A): A;
 }
 
-//. ### Maybe type
-export interface Maybe<A> extends Functor<A>, Foldable<A> {
-  // breaks ap, not sure why
-  //value: A;
+export interface Bifunctor<T, U> {}
 
-  // TODO: not sure if TypeScript allows @@ in id
-//# Maybe#@@type :: String
+export interface NonGlobalRegExp extends RegExp {}
+
+export interface GlobalRegExp extends RegExp {}
+
+export interface RegexMatchResult {
+  match: string;
+  groups: Maybe<string>[];
+}
+
+interface StringConstructor extends TypeRep<string> {}
+
+
+//. ### Maybe type
+export interface Maybe<A> extends Functor<A>, Foldable<A>, Chain<A> {
+  value: A;
 
 //# Maybe#isNothing :: Boolean
   isNothing: boolean;
 
 //# Maybe#isJust :: Boolean
   isJust: boolean;
-
-//# Maybe#chain :: Maybe a ~> (a -> Maybe b) -> Maybe b
-  chain: <B>(fn: (a: A) => Maybe<B>) => Maybe<B>;
-
-//# Maybe#empty :: Maybe a ~> Maybe a
-  empty: () => Maybe<A>
-
-//# Maybe#equals :: Maybe a ~> b -> Boolean
-  equals: (toTest: A) => boolean
-
-//# Maybe#extend :: Maybe a ~> (Maybe a -> a) -> Maybe a
-  extend: (fn: (maybe: Maybe<A>) => A) => Maybe<A>;
-
-//# Maybe#filter :: Maybe a ~> (a -> Boolean) -> Maybe a
-  filter: (testFn: (value: A) => boolean) => Maybe<A>;
-
-//# Maybe#map :: Maybe a ~> (a -> b) -> Maybe b
-  map: <B>(processor: (value: A) => B) => Maybe<B>
-
-//# Maybe#of :: Maybe a ~> b -> Maybe b
-  of: <B>(value: B) => Maybe<B>;
-
-//# Maybe#reduce :: Maybe a ~> ((b, a) -> b) -> b -> b
-  reduce: <B>(reducer: (acc: B, item: A) => B, zero: B) => B;
-
-//# Maybe#sequence :: Applicative f => Maybe (f a) ~> (a -> f a) -> f (Maybe a)
-  // TODO
-
-//# Maybe#toBoolean :: Maybe a ~> Boolean
-  toBoolean: () => boolean;
 
 //# Maybe#toString :: Maybe a ~> String
   toString: () => string;
@@ -131,14 +104,7 @@ export interface Maybe<A> extends Functor<A>, Foldable<A> {
 
 //# MaybeType :: Type -> Type
 //# Maybe :: TypeRep Maybe
-export interface MaybeStatic {
-//# Maybe.empty :: -> Maybe a
-  empty<A>(): Maybe<A>;
-
-//# Maybe.of :: a -> Maybe a
-  of<A, B, T extends (a: A)=>B>(input?: T|null): MaybeFunc<A, B, T>;
-  of<S, A extends Semigroup<S>>(input?: A|null): MaybeSemigroup<A>;
-  of<A>(input?: A|null): Maybe<A>;
+export interface MaybeStatic extends TypeRep<Maybe<any>> {
 }
 
 //. ### Either type
@@ -151,43 +117,18 @@ export interface EitherSemigroup<A extends Semigroup<A>, B extends Semigroup<B>>
 
 export interface EitherFunc<A, B extends (m: M)=>N, M, N> extends Either<A, B> {
 //# Either#ap :: Either a (b -> c) ~> Either a b -> Either a c
-  ap: <A>(value: Either<A, M>) => Either<A, N>;
+//  ap: <A>(value: Either<A, M>) => Either<A, N>; // TODO: move to main object
 }
 
 //# EitherType :: Type -> Type -> Type
 //# Either :: TypeRep Either
-export interface Either<A, B> {
+export interface Either<A, B> extends Bifunctor<A, B> {
 //# Either#@@type :: String
 //# Either#isLeft :: Boolean
   isLeft: boolean;
 
 //# Either#isRight :: Boolean
   isRight: boolean;
-
-//# Either#chain :: Either a b ~> (b -> Either a c) -> Either a c
-  chain<C>(mapFn: (b: B) => Either<A, C>): Either<A, C>;
-
-//# Either#equals :: Either a b ~> c -> Boolean
-  equals(toTest: any): boolean;
-
-//# Either#extend :: Either a b ~> (Either a b -> b) -> Either a b
-  extend(fn: (a: Either<A, B>)=>B): Either<A, B>;
-
-//# Either#map :: Either a b ~> (b -> c) -> Either a c
-  map<C>(fn: (b: B)=>C): Either<A, C>;
-
-//# Either#of :: Either a b ~> c -> Either a c
-  // Doesn't support type classes (e.g. semigroup).
-  of<C>(newRight: C): Either<A, C>;
-
-//# Either#reduce :: Either a b ~> ((c, b) -> c) -> c -> c
-  reduce<C>(reducer: (acc: C, item: B) => C, zero: C): C;
-
-//# Either#sequence :: Applicative f => Either a (f b) ~> (b -> f b) -> f (Either a b)
-  // TODO
-
-//# Either#toBoolean :: Either a b ~> Boolean
-  toBoolean(): boolean;
 
 //# Either#toString :: Either a b ~> String
   toString(): string;
@@ -203,9 +144,9 @@ export interface EitherStatic {
   of<A, B>(input: B): Either<A, B>;
 }
 
-export interface Alternative<A> {
-  toBoolean(): boolean;
-}
+export interface Alt<A> extends Alternative<A> {}
+
+export interface Alternative<A> {}
 
 declare global {
   interface String extends Semigroup<String> {
@@ -232,6 +173,39 @@ export interface Sanctuary {
 
 //# is :: TypeRep a -> b -> Boolean
   is<A>(typeRep: Type<A>, toTest: any): toTest is A;
+  is<A>(typeRep: Type<A>): (toTest: any) => toTest is A;
+
+//. ### Showable
+//# toString :: Any -⁠> String
+  toString: (a: any) => string;
+
+
+//. ### Fantasy Land
+//# or :: Alternative a => a -> a -> a
+  alt<A extends Alt<A>>(first: A, second: A): A;
+
+//# ap :: Apply f => f (a -> b) -> f a -> f b
+  ap<A extends MaybeFunc<M, N, T>, M, N, T extends(m: M)=>N>(fn: A, a: Maybe<M>): Maybe<N>;
+  ap<A extends Array<(t: T) => U>, T, U>(fn: A, a: T[]): U[];
+  ap<A extends Apply<T>, T extends(m: M)=>N, M, N>(fn: A, a: Apply<M>): Apply<N>;
+
+//# apFirst :: Apply f => f a -⁠> f b -⁠> f a
+  apFirst<A extends Apply<T>, B extends Apply<U>, T, U>(a: A, b: B): A;
+
+//# apSecond :: Apply f => f a -⁠> f b -⁠> f b
+  apSecond<A extends Apply<T>, B extends Apply<U>, T, U>(a: A, b: B): B;
+
+//# bimap :: Bifunctor f => (a -⁠> b) -⁠> (c -⁠> d) -⁠> f a c -⁠> f b d
+  bimap<A, B, C, D, T extends Either<A, C>, U extends Either<B, D>>(mapFnA: (a: A) => B, mapFnB: (c: C) => D, input: T): U;
+  bimap<A, B, C, D>(mapFnA: (a: A) => B, mapFnB: (c: C) => D, input: Bifunctor<A, C>): Bifunctor<B, D>;
+  // bimap<A, B, C, D, Bif<any, any> extends Bifunctor<any, any>>(mapFnA: (a: A) => B, mapFnB: (c: C) => D, input: Bif<A, C>): Bif<B, D>;
+
+//# empty :: Monoid a => TypeRep a -⁠> a
+  empty<A>(a: TypeRep<A>): A;
+  //empty<A, T extends Monoid<A>>(a: TypeRep<A>): T; // nice, but TSC fails to use it properly
+
+//# zero :: Plus f => TypeRep f -⁠> f a
+  zero<A>(a: TypeRep<A>): A;
 
 //. ### Combinator
 //# I :: a -> a
@@ -246,30 +220,32 @@ export interface Sanctuary {
 //# T :: a -> (a -> b) -> b
   T<A, B>(a: A, fn: (a: A) => B): B;
 
-//# C :: (a -> b -> c) -> b -> a -> c
-  C<A, B, C>(fn: (a: A)=>(b: B)=>C, b: B, a: A): C;
+// originally C
+//# flip :: (a -> b -> c) -> b -> a -> c
+  flip<A, B, C>(fn: (a: A)=>(b: B)=>C, b: B, a: A): C;
 
-//# B :: (b -> c) -> (a -> b) -> a -> c
-  B<A, B, C>(f: (b: B)=>C, g: (a: A)=>B, value: A): C;
-
-//# S :: (a -> b -> c) -> (a -> b) -> a -> c
-  S<A, B, C>(bin: (a: A)=>(b: B)=>C, un: (a: A)=>B, value: A): C;
 
 //. ### Function
-//# flip :: ((a, b) -> c) -> b -> a -> c
-  flip<A, B, C>(fn: (a: A, b: B) => C): (b: B, a?: A) => C;
-  flip<A, B, C, Rest>(fn: (a: A, b: B, ...args: Rest[]) => C): (b: B, a?: A, ...args: Rest[]) => C;
+//# flip_ :: ((a, b) -> c) -> b -> a -> c
+  flip_<A, B, C>(fn: (a: A, b: B) => C): (b: B, a?: A) => C;
+  flip_<A, B, C, Rest>(fn: (a: A, b: B, ...args: Rest[]) => C): (b: B, a?: A, ...args: Rest[]) => C;
 
 // TODO: very loosely typed. check if it could be typed better
 
-//# lift :: Functor f => (a -> b) -> f a -> f b
-  lift<A, B, C extends Functor<A>, D extends C>(fn: (a: A) => B, fa: C): D;
+// used to be "lift"
+//# map :: Functor f => (a -> b) -> f a -> f b
+  map<A, B, C extends Functor<A>, D extends C>(fn: (a: A) => B, fa: C): D;
 
 //# lift2 :: Apply f => (a -> b -> c) -> f a -> f b -> f c
   lift2<A, B, C, D extends Functor<A>, E extends Functor<B>>(fn: (a: A) => (b: B) => C, fa: D, fb: E): any;
 
 //# lift3 :: Apply f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
   lift3<A, B, C, D, E extends Functor<A>, F extends Functor<B>, G extends Functor<C>>(fn: (a: A) => (b: B) => (c: C) => D, fa: E, fb: F, fc: G): any;
+
+//# chain :: Chain m => (a -> m b) -> m a -> m b
+  chain: <A, B>(fn: (a: A) => Maybe<B>, a: Maybe<A>) => Maybe<B>;
+  // chain: <A, B>(fn: (a: A) => B[], a: A[]) => B[]; // TODO: error TS2403: Subsequent variable declarations must have the same type.
+  // chain: <T extends Chain<A>, U extends Chain<B>, A, B>(fn: (a: A) => U, a: T) => U;
 
 
 //. ### Composition
@@ -340,25 +316,24 @@ export interface Sanctuary {
   pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z>(functions: [(a: A)=>B, (b: B)=>C, (c: C)=>D, (d: D)=>E, (e: E)=>F, (f: F)=>G, (g: G)=>H, (h: H)=>I, (i: I)=>J, (j: J)=>K, (k: K)=>L, (l: L)=>M, (m: M)=>N, (n: N)=>O, (o: O)=>P, (p: P)=>Q, (q: Q)=>R, (r: R)=>S, (s: S)=>T, (t: T)=>U, (u: U)=>V, (v: V)=>W, (w: W)=>X, (x: X)=>Y, (y: Y)=>Z]): (a: A)=>Z;
 // pipe<A, Z>(functions: Array<(any)=>any>): (A)=>Z;
 
-//# meld :: [** -> *] -> (* -> * -> ... -> *)
-// Jesus, this one is even worse than the pipe thingy. Only few most common cases for now.
-// TODO: remove when removed from library
-// 1
-  meld<A, B>(functions: [(a: A)=>B]): (a: A)=>B;
-// 1, 1
-  meld<A, B, C>(functions: [(a: A)=>B, (b: B)=>C]): (a: A)=>C;
-// 2
-  meld<A, B, C>(functions: [(a: A, b: B)=>C]): (a: A, b: B)=>C;
-// 2, 2
-  meld<A, B, C, D, E>(functions: [(a: A, b: B)=>C, (c: C, d: D)=>E]): (a: A, b: B, d: D)=>E;
+//# curry2 :: ((a, b) -⁠> c) -⁠> a -⁠> b -⁠> c
+  curry2<A, B, C>(f: (a: A, b: B) => C): (a: A) => (b: B) => C;
+
+//# curry3 :: ((a, b, c) -⁠> d) -⁠> a -⁠> b -⁠> c -⁠> d
+  curry3<A, B, C, D>(f: (a: A, b: B, c: C) => D): (a: A) => (b: B) => (c: C) => D;
+
+//# curry4 :: ((a, b, c, d) -⁠> e) -⁠> a -⁠> b -⁠> c -⁠> d -⁠> e
+  curry4<A, B, C, D, E>(f: (a: A, b: B, c: C, d: D) => E): (a: A) => (b: B) => (c: C) => (d: D) => E;
+
+//# curry5 :: ((a, b, c, d, e) -⁠> f) -⁠> a -⁠> b -⁠> c -⁠> d -⁠> e -> f
+  curry5<A, B, C, D, E, F>(f: (a: A, b: B, c: C, d: D, e: E) => F): (a: A) => (b: B) => (c: C) => (d: D) => (e: E) => F;
+
 
 //# MaybeType :: Type -> Type
   Maybe: MaybeStatic;
 
-//# Nothing :: -> Maybe a
-  Nothing<A extends Semigroup<any>>(): MaybeSemigroup<A>; // isn't working as expected
-  Nothing<A>(): Maybe<A>;
-  Nothing(): Maybe<any>;
+//# Nothing :: Maybe a
+  Nothing: MaybeSemigroup<any>;
 
 //# Just :: a -> Maybe a
   Just<A, B, T extends (a: A)=>B>(input: T): MaybeFunc<A, B, T>;
@@ -378,6 +353,8 @@ export interface Sanctuary {
   maybeToNullable<A>(input: Maybe<A>): A|null;
 
 //# toMaybe :: a? -> Maybe a
+  toMaybe<A, B, T extends (a: A)=>B>(input?: T|null): MaybeFunc<A, B, T>;
+  toMaybe<S, A extends Semigroup<S>>(input?: A|null): MaybeSemigroup<A>;
   toMaybe<A>(input?: A|null): Maybe<A>;
 
 //# maybe :: b -> (a -> b) -> Maybe a -> b
@@ -456,18 +433,15 @@ export interface Sanctuary {
   eitherToMaybe<B>(either: Either<any, B>): Maybe<B>;
 
 
-//. ### Alternative
-//# and :: Alternative a => a -> a -> a
-  and<A extends Alternative<A>>(first: A, second: A): A;
-
-//# or :: Alternative a => a -> a -> a
-  or<A extends Alternative<A>>(first: A, second: A): A;
-
-//# xor :: (Alternative a, Monoid a) => a -> a -> a
-  xor<A extends Alternative<A>>(first: A, second: A): A; // extends Monoid
-
-
 //. ### Logic
+//# and :: Boolean -> Boolean -> Boolean
+  and(a: boolean, b: boolean): boolean;
+  and(a: boolean): (b: boolean) => boolean;
+
+//# or :: Boolean -> Boolean -> Boolean
+  or(a: boolean, b: boolean): boolean;
+  or(a: boolean): (b: boolean) => boolean;
+
 //# not :: Boolean -> Boolean
   not(input: boolean): boolean;
 
@@ -535,9 +509,10 @@ export interface Sanctuary {
 //# find :: (a -> Boolean) -> Array a -> Maybe a
   find<A>(pred: Pred<A>, array: A[]): Maybe<A>;
 
-//# pluck :: Accessible a => TypeRep b -> String -> Array a -> Array (Maybe b)
-  pluck<A extends Accessible, K extends keyof A, B extends A[K]>(typeRep: Type<B>, propName: K, array: A[]): Maybe<B> [];
-  pluck<B>(typeRep: Type<B>, propName: string, array: Accessible[]): Maybe<B> [];
+//# pluck :: Accessible a => String -> Array a -> Array b
+  pluck<A extends Accessible, K extends keyof A, B extends A[K]>(propName: K, array: A[]): B[];
+  pluck<B>(propName: string, array: Accessible[]): B[];
+  // pluck(propName: string, array: any[]): any[];
 
 //# reduce :: Foldable f => (a -> b -> a) -> a -> f b -> a
   reduce<A, B>(reducer: (acc: A) => (item: B) => A, zero: A, foldable: Foldable<B>): A;
@@ -555,12 +530,12 @@ export interface Sanctuary {
 //# prop :: Accessible a => String -> a -> b
   prop<A extends Accessible, K extends keyof A>(p: K, obj: A): A[K];
 
-//# get :: Accessible a => TypeRep b -> String -> a -> Maybe b
-  get<A extends Accessible, K extends keyof A, B extends A[K]>(typeRep: Type<B>, p: K, obj: A): Maybe<B>;
-  get<B>(typeRep: Type<B>, p: string, obj: Accessible): Maybe<B>;
+//# get :: Accessible a => (b -> Boolean) -> String -> a -> Maybe c
+  get<A extends Accessible, K extends keyof A, B extends A[K]>(pred: IsFnType<A>, p: K, obj: A): Maybe<B>;
+  get<A extends Accessible, B>(pred: IsFnType<A>, p: string, obj: A): Maybe<B>;
 
-//# gets :: Accessible a => TypeRep b -> Array String -> a -> Maybe b
-  gets<A extends Accessible, B>(typeRep: Type<B>, path: string[], object: A): Maybe<B>;
+//# gets :: Accessible a => (b -> Boolean) -> Array String -> a -> Maybe c
+  gets<A extends Accessible, B>(pred: IsFnType<A>, path: string[], object: A): Maybe<B>;
 
 //# keys :: StrMap a -> Array String
   keys(object: Object): string[];
@@ -628,7 +603,7 @@ export interface Sanctuary {
   parseInt(radix: Integer, input: string): Maybe<Integer>;
 
 //# parseJson :: TypeRep a -> String -> Maybe a
-  parseJson<A>(typeRep: Type<A>, input: string): Maybe<A>;
+  parseJson<A>(pred: Pred<any>, input: string): Maybe<A>;
 
 
 //. ### RegExp
@@ -641,9 +616,13 @@ export interface Sanctuary {
 //# test :: RegExp -> String -> Boolean
   test(regex: RegExp, input: string): boolean;
 
-//# match :: RegExp -> String -> Maybe (Array (Maybe String))
-  match(regex: RegExp, input: string): Maybe<Array<Maybe<string>>>
+//# match :: NonGlobalRegExp -> String -> Maybe { match :: String, groups :: Array (Maybe String) }
+  match(regex: NonGlobalRegExp, input: string): Maybe<RegexMatchResult>;
+  match(regex: NonGlobalRegExp): (input: string) => Maybe<RegexMatchResult>;
 
+// # matchAll :: GlobalRegExp -> String -> Array { match :: String, groups :: Array (Maybe String) }
+  matchAll(regex: GlobalRegExp, input: string): RegexMatchResult[];
+  matchAll(regex: GlobalRegExp): (input: string) => RegexMatchResult[];
 
 //. ### String
 //# toUpper :: String -> String
@@ -667,4 +646,6 @@ export interface Sanctuary {
 //# unlines :: Array String -> String
   unlines(input: string[]): string;
 
+//# splitOn :: String -⁠> String -⁠> Array String
+  splitOn(delim: String, input: string): string[];
 }
