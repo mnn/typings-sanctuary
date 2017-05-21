@@ -42,7 +42,9 @@ type FiniteNumber = number; // - Infinity, -Infinity, NaN
 type NonZeroFiniteNumber = number; // - Infinity, -Infinity, 0, -0, NaN
 type ValidNumber = number; // - NaN
 
-export interface Functor<F> {}
+export interface Functor<F> {
+  'fantasy-land/map'<U>(fn: (f: F) => U): Functor<U>
+}
 
 export interface Apply<F> {}
 
